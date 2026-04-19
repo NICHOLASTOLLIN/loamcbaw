@@ -111,7 +111,8 @@ router.post(
         return res.status(400).json({ success: false, message: 'Invalid username.' });
       }
 
-      const clientIp = req.ip;
+      // Legge l'IP reale del client passando attraverso i proxy di Render
+      const clientIp = (req.headers['x-forwarded-for']?.split(',')[0]?.trim()) || req.ip;
 
       // ── VPN / Proxy check ─────────────────────────────────────────────────────
       if (clientIp) {
