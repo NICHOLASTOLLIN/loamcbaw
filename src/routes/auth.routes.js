@@ -15,9 +15,9 @@ function issueToken(res, payload) {
   });
   res.cookie('token', token, {
     httpOnly: true,
-    secure: true,         // obbligatorio con SameSite=None
-    sameSite: 'None',     // permette cross-domain (wlc.lol ↔ api.wlc.lol)
-    domain: '.wlc.lol',  // copre tutti i sottodomini
+    secure: true,
+    sameSite: 'None',
+    domain: '.wlc.lol',
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
   return token;
@@ -35,6 +35,27 @@ function isValidUsername(username) {
     /^[a-zA-Z0-9_]{3,20}$/.test(username) &&
     !RESERVED_USERNAMES.has(username.toLowerCase())
   );
+}
+
+// ─── VPN / Proxy check via IPHub ──────────────────────────────────────────────
+// block: 0 = IP pulito, 1 = VPN/proxy, 2 = datacenter/hosting
+async function isVpnOrProxy(ip) {
+  try {
+    const apiKey = process.env.IPHUB_API_KEY;
+    if (!apiKey) return false; // chiave non configurata → non bloccare
+
+    const res = await fetch(`https://v2.api.iphub.info/ip/${ip}`, {
+      headers: { 'X-Key': apiKey },
+    });
+
+    if (!res.ok) return false; // IPHub irraggiungibile → fail-open
+
+    const data = await res.json();
+    return data.block === 1 || data.block === 2;
+  } catch (err) {
+    console.error('IPHub check error:', err.message);
+    return false; // fail-open: se IPHub è giù non bloccare la registrazione
+  }
 }
 
 // ─── POST /api/auth/register/check-username ───────────────────────────────────
@@ -90,7 +111,34 @@ router.post(
         return res.status(400).json({ success: false, message: 'Invalid username.' });
       }
 
-      // Check duplicates
+      const clientIp = req.ip;
+
+      // ── VPN / Proxy check ─────────────────────────────────────────────────────
+      if (clientIp) {
+        const vpn = await isVpnOrProxy(clientIp);
+        if (vpn) {
+          return res.status(403).json({
+            success: false,
+            message: 'Registrations via VPN or proxy are not allowed. Please disable your VPN and try again.',
+          });
+        }
+      }
+
+      // ── IP check: max 1 account per IP ───────────────────────────────────────
+      if (clientIp) {
+        const ipSnap = await collections.users
+          .where('registrationIp', '==', clientIp)
+          .limit(1)
+          .get();
+        if (!ipSnap.empty) {
+          return res.status(403).json({
+            success: false,
+            message: 'An account already exists from this network. Only one account per IP is allowed.',
+          });
+        }
+      }
+
+      // ── Duplicate username / email check ─────────────────────────────────────
       const [usernameSnap, emailSnap] = await Promise.all([
         collections.usernames.doc(username.toLowerCase()).get(),
         collections.users.where('email', '==', email).limit(1).get(),
@@ -103,10 +151,10 @@ router.post(
         return res.status(409).json({ success: false, message: 'An account with this email already exists.' });
       }
 
-      // Hash password
+      // ── Hash password ─────────────────────────────────────────────────────────
       const passwordHash = await bcrypt.hash(password, 12);
 
-      // Create user + claim username atomically
+      // ── Create user + claim username atomically ───────────────────────────────
       const uid = collections.users.doc().id;
       const now = admin.firestore.FieldValue.serverTimestamp();
       const batch = collections.users.firestore.batch();
@@ -126,6 +174,7 @@ router.post(
         linkCount: 0,
         viewCount: 0,
         profileFont: 'inter',
+        registrationIp: clientIp || null,
         createdAt: now,
         updatedAt: now,
       });
