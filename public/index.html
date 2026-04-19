@@ -1815,7 +1815,7 @@ card.style.setProperty('--my',(e.clientY-r.top)+'px');
     return n + '';
   }
   try {
-    const r = await fetch('/api/stats/public');
+    const r = await fetch('https://wlc-backend-4x27.onrender.com/api/stats/public');
     const d = await r.json();
     if (d.success) {
       document.getElementById('statUsers').innerHTML = fmtNum(d.users);

@@ -377,7 +377,7 @@ document.addEventListener('DOMContentLoaded',function(){
     btnCreate.classList.add('loading');
     btnCreate.disabled = true;
     try {
-      var res = await fetch('/api/auth/register', {
+      var res = await fetch('https://wlc-backend-4x27.onrender.com/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

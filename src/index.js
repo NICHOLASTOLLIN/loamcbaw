@@ -53,21 +53,12 @@ app.use(cookieParser());
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 app.use(express.static(PUBLIC_DIR));
 
-// ── API routes ────────────────────────────────────────────────────────────────
-app.use('/api', apiLimiter);
-app.use('/api/auth',          authRoutes);
-app.use('/api/profile',       profileRoutes);
-app.use('/api/links',         linksRoutes);
-app.use('/api/admin',         adminRoutes);
-app.use('/api/support',       supportRoutes);
-app.use('/api',               notificationsRoutes);   // → /api/notifications
-
-// ── Health check ─────────────────────────────────────────────────────────────
+// ── Health check (prima del rate limiter) ────────────────────────────────────
 app.get('/api/health', (req, res) => {
   res.json({ success: true, status: 'online', ts: new Date().toISOString() });
 });
 
-// ── Public stats (for homepage counter) ──────────────────────────────────────
+// ── Public stats (prima del rate limiter) ─────────────────────────────────────
 app.get('/api/stats/public', async (req, res) => {
   try {
     const { collections } = require('./config/firebase');
@@ -80,6 +71,15 @@ app.get('/api/stats/public', async (req, res) => {
     return res.json({ success: false, users: 0, views: 0 });
   }
 });
+
+// ── API routes ────────────────────────────────────────────────────────────────
+app.use('/api', apiLimiter);
+app.use('/api/auth',          authRoutes);
+app.use('/api/profile',       profileRoutes);
+app.use('/api/links',         linksRoutes);
+app.use('/api/admin',         adminRoutes);
+app.use('/api/support',       supportRoutes);
+app.use('/api',               notificationsRoutes);   // → /api/notifications
 
 // ── Static pages ──────────────────────────────────────────────────────────────
 app.get('/',          (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));

@@ -332,7 +332,7 @@ let fontCycleIdx   = 0;
 // ── Init ────────────────────────────────────────────────────────────────────
 async function init() {
   try {
-    const res  = await fetch('/api/profile/' + username);
+    const res  = await fetch('https://wlc-backend-4x27.onrender.com/api/profile/' + username);
     const data = await res.json();
     if (!data.success) {
       document.getElementById('displayNameEl').textContent = 'Profile not found';
@@ -674,10 +674,10 @@ async function trackView() {
   try {
     const key = 'wlc-view-' + username;
     if (!localStorage.getItem(key)) {
-      await fetch('/api/profile/' + username + '/view', { method: 'POST' });
+      await fetch('https://wlc-backend-4x27.onrender.com/api/profile/' + username + '/view', { method: 'POST' });
       localStorage.setItem(key, '1');
     }
-    const res  = await fetch('/api/profile/' + username + '/views');
+    const res  = await fetch('https://wlc-backend-4x27.onrender.com/api/profile/' + username + '/views');
     const data = await res.json();
     if (data.views !== undefined) {
       document.getElementById('viewsCount').textContent = data.views;
@@ -687,7 +687,7 @@ async function trackView() {
 
 // ── Tracking ─────────────────────────────────────────────────────────────────
 async function trackClick(id) {
-  try { await fetch('/api/links/' + id + '/click', { method: 'POST' }); } catch(e) {}
+  try { await fetch('https://wlc-backend-4x27.onrender.com/api/links/' + id + '/click', { method: 'POST' }); } catch(e) {}
 }
 
 // ── Icons ─────────────────────────────────────────────────────────────────────

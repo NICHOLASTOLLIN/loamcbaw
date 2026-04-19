@@ -1,0 +1,6 @@
+/login        /login.html        200
+/register     /register.html     200
+/dashboard    /dashboard.html    200
+/admin        /admin.html        200
+/support      /support.html      200
+/*            /index.html        200
