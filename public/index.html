@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>wlc.lol — Custom Link-in-Bio Pages with Analytics</title>
+<meta name="description" content="wlc.lol — customizable link-in-bio pages with real-time analytics, Discord widgets, music players, and custom layouts. Free to start, one-time Premium upgrade."/>
+<meta name="keywords" content="link in bio, custom profile page, discord widget, analytics, bio page, wlc.lol"/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:title" content="wlc.lol — One link, all of you."/>
+<meta property="og:description" content="Custom backgrounds, animated effects, Discord widgets, and real-time analytics — all in one clean link, completely free."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://wlc.lol"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="wlc.lol — One link, all of you."/>
+<meta name="twitter:description" content="Custom backgrounds, animated effects, Discord widgets, and real-time analytics — all in one clean link, completely free."/>
+<link rel="canonical" href="https://wlc.lol"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+--bg:#09080a;
+--surface:#111013;
+--surface2:#18161b;
+--border:rgba(255,255,255,0.06);
+--border2:rgba(255,255,255,0.1);
+--em:#ff6a1a;
+--em2:#ff8c4a;
+--em3:rgba(255,106,26,0.13);
+--em4:rgba(255,106,26,0.06);
+--emglow:rgba(255,106,26,0.22);
+--text:#f5f0ee;
+--muted:#8a7e7a;
+--muted2:#52463f;
+--font-display:'Cabinet Grotesk',sans-serif;
+--font-body:'Instrument Sans',sans-serif;
+--radius:20px;
+}
+
+html{scroll-behavior:smooth}
+
+body{
+background:var(--bg);
+color:var(--text);
+font-family:var(--font-body);
+overflow-x:hidden;
+-webkit-font-smoothing:antialiased;
+}
+
+a{text-decoration:none;color:inherit}
+img{display:block;max-width:100%}
+
+.container{width:100%;max-width:1160px;margin:0 auto;padding:0 28px}
+
+nav{
+position:fixed;
+top:0;left:0;right:0;
+z-index:100;
+padding:18px 24px;
+display:flex;
+justify-content:center;
+}
+
+.nav-inner{
+width:100%;
+max-width:1080px;
+background:rgba(9,8,10,0.72);
+backdrop-filter:blur(24px);
+-webkit-backdrop-filter:blur(24px);
+border:1px solid var(--border2);
+border-radius:999px;
+padding:7px 8px 7px 22px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:12px;
+}
+
+.nav-logo{
+display:flex;
+align-items:center;
+gap:9px;
+text-decoration:none;
+flex-shrink:0;
+}
+
+.nav-logo-mark{
+width:30px;height:30px;
+border-radius:9px;
+overflow:hidden;
+display:flex;align-items:center;justify-content:center;
+flex-shrink:0;
+}
+
+.nav-logo-mark img{
+width:30px;height:30px;
+object-fit:cover;
+border-radius:9px;
+}
+
+.nav-logo-text{
+font-family:var(--font-display);
+font-weight:900;
+font-size:15px;
+letter-spacing:-0.01em;
+color:var(--text);
+}
+
+.nav-logo-text span{color:var(--em)}
+
+.nav-links{
+display:flex;
+align-items:center;
+gap:2px;
+}
+
+.nav-links a{
+font-family:var(--font-body);
+font-size:13.5px;
+font-weight:500;
+color:var(--muted);
+padding:7px 15px;
+border-radius:999px;
+transition:color 0.2s,background 0.2s;
+text-decoration:none;
+white-space:nowrap;
+}
+
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,0.05)}
+.nav-links a.active{color:var(--text);background:rgba(255,255,255,0.07)}
+
+.nav-actions{
+display:flex;
+align-items:center;
+gap:8px;
+flex-shrink:0;
+}
+
+.btn-primary{
+background:var(--em);
+color:#09080a;
+font-family:var(--font-display);
+font-size:13px;
+font-weight:800;
+padding:8px 20px;
+border-radius:999px;
+border:none;
+cursor:pointer;
+transition:all 0.2s;
+letter-spacing:-0.01em;
+}
+
+.btn-primary:hover{background:var(--em2);transform:translateY(-1px)}
+
+.mobile-menu-btn{
+display:none;
+background:none;
+border:1px solid var(--border2);
+color:var(--muted);
+width:38px;height:38px;
+border-radius:12px;
+cursor:pointer;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+gap:5px;
+flex-shrink:0;
+}
+
+.mobile-menu-btn span{
+display:block;
+width:16px;height:1.5px;
+background:currentColor;
+border-radius:2px;
+transition:all 0.3s;
+}
+
+.mobile-nav{
+display:none;
+position:fixed;
+top:82px;left:16px;right:16px;
+z-index:99;
+background:rgba(9,8,10,0.96);
+backdrop-filter:blur(24px);
+border:1px solid var(--border2);
+border-radius:20px;
+padding:12px;
+flex-direction:column;
+gap:4px;
+opacity:0;
+transform:translateY(-8px);
+transition:all 0.25s;
+pointer-events:none;
+}
+
+.mobile-nav.open{opacity:1;transform:translateY(0);pointer-events:all}
+
+.mobile-nav a{
+display:flex;
+width:100%;
+font-family:var(--font-body);
+font-size:14px;
+font-weight:500;
+color:var(--text);
+padding:12px 16px;
+border-radius:12px;
+text-decoration:none;
+transition:background 0.2s;
+}
+
+.mobile-nav a:hover{background:rgba(255,255,255,0.05)}
+
+.mobile-nav .mobile-cta{
+margin-top:8px;
+background:var(--em);
+color:#09080a;
+font-weight:800;
+border-radius:12px;
+justify-content:center;
+font-family:var(--font-display);
+}
+
+.hero{
+min-height:100vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+padding:130px 24px 80px;
+text-align:center;
+position:relative;
+overflow:hidden;
+}
+
+.hero-bg{
+position:absolute;
+inset:0;
+pointer-events:none;
+z-index:0;
+}
+
+.hero-glow{
+position:absolute;
+top:-15%;left:50%;
+transform:translateX(-50%);
+width:1000px;height:700px;
+background:radial-gradient(ellipse at 50% 0%, var(--emglow) 0%, transparent 62%);
+}
+
+.hero-orb{
+position:absolute;
+top:20%;left:15%;
+width:320px;height:320px;
+background:radial-gradient(circle,rgba(255,106,26,0.07) 0%,transparent 70%);
+border-radius:50%;
+filter:blur(40px);
+}
+
+.hero-orb2{
+position:absolute;
+top:30%;right:10%;
+width:240px;height:240px;
+background:radial-gradient(circle,rgba(255,140,74,0.06) 0%,transparent 70%);
+border-radius:50%;
+filter:blur(30px);
+}
+
+.hero-grid{
+position:absolute;
+inset:0;
+background-image:
+linear-gradient(rgba(255,106,26,0.03) 1px,transparent 1px),
+linear-gradient(90deg,rgba(255,106,26,0.03) 1px,transparent 1px);
+background-size:56px 56px;
+mask-image:radial-gradient(ellipse 85% 55% at 50% 0%,black 50%,transparent 100%);
+-webkit-mask-image:radial-gradient(ellipse 85% 55% at 50% 0%,black 50%,transparent 100%);
+}
+
+.hero-content{
+position:relative;
+z-index:1;
+max-width:780px;
+width:100%;
+margin:0 auto;
+}
+
+.hero-badge{
+display:inline-flex;
+align-items:center;
+gap:8px;
+background:var(--em3);
+border:1px solid rgba(255,106,26,0.25);
+color:var(--em2);
+font-size:11.5px;
+font-weight:600;
+letter-spacing:0.07em;
+text-transform:uppercase;
+padding:6px 14px;
+border-radius:999px;
+margin-bottom:32px;
+animation:fadeUp 0.6s ease both;
+}
+
+.hero-badge-dot{
+width:6px;height:6px;
+border-radius:50%;
+background:var(--em);
+animation:pulse-dot 2s ease infinite;
+}
+
+@keyframes pulse-dot{
+0%,100%{opacity:1;transform:scale(1)}
+50%{opacity:0.4;transform:scale(0.7)}
+}
+
+.hero-h1{
+font-family:var(--font-display);
+font-size:clamp(44px,7.5vw,92px);
+font-weight:900;
+line-height:0.96;
+letter-spacing:-0.04em;
+margin-bottom:24px;
+animation:fadeUp 0.7s ease 0.1s both;
+}
+
+.hero-h1 .line1{
+color:var(--text);
+display:block;
+}
+
+.hero-h1 .line2{
+background:linear-gradient(125deg,#ff6a1a 0%,#ffb060 45%,#ff8c4a 100%);
+-webkit-background-clip:text;
+background-clip:text;
+-webkit-text-fill-color:transparent;
+display:block;
+}
+
+.hero-sub{
+font-size:clamp(15px,1.9vw,18px);
+color:var(--muted);
+line-height:1.7;
+max-width:480px;
+margin:0 auto 40px;
+animation:fadeUp 0.7s ease 0.2s both;
+}
+
+.hero-input-wrap{
+display:flex;
+align-items:center;
+background:var(--surface);
+border:1px solid var(--border2);
+border-radius:999px;
+padding:5px 5px 5px 20px;
+max-width:390px;
+width:100%;
+margin:0 auto 32px;
+animation:fadeUp 0.7s ease 0.3s both;
+gap:8px;
+transition:border-color 0.25s,box-shadow 0.25s;
+}
+
+.hero-input-wrap:focus-within{
+border-color:rgba(255,106,26,0.5);
+box-shadow:0 0 0 4px rgba(255,106,26,0.1);
+}
+
+.hero-input-prefix{
+font-size:15px;
+font-weight:600;
+color:var(--muted2);
+white-space:nowrap;
+flex-shrink:0;
+font-family:var(--font-display);
+}
+
+.hero-input{
+flex:1;
+background:none;
+border:none;
+outline:none;
+font-family:var(--font-display);
+font-size:15px;
+font-weight:700;
+color:var(--text);
+min-width:0;
+}
+
+.hero-input::placeholder{color:var(--muted2)}
+
+.hero-claim-btn{
+background:var(--em);
+color:#09080a;
+font-family:var(--font-display);
+font-size:13px;
+font-weight:800;
+padding:10px 22px;
+border-radius:999px;
+border:none;
+cursor:pointer;
+transition:all 0.2s;
+white-space:nowrap;
+flex-shrink:0;
+letter-spacing:-0.01em;
+}
+
+.hero-claim-btn:hover{background:var(--em2);transform:scale(1.02)}
+
+.hero-stats{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:32px;
+animation:fadeUp 0.7s ease 0.4s both;
+flex-wrap:wrap;
+}
+
+.hero-stat{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:2px;
+}
+
+.hero-stat-num{
+font-family:var(--font-display);
+font-size:22px;
+font-weight:900;
+letter-spacing:-0.03em;
+color:var(--text);
+}
+
+.hero-stat-num span{color:var(--em)}
+
+.hero-stat-label{
+font-size:11px;
+color:var(--muted);
+letter-spacing:0.06em;
+text-transform:uppercase;
+}
+
+.hero-stat-sep{
+width:1px;height:32px;
+background:var(--border);
+}
+
+.marquee-section{
+background:var(--surface);
+border-top:1px solid var(--border);
+border-bottom:1px solid var(--border);
+padding:13px 0;
+overflow:hidden;
+position:relative;
+}
+
+.marquee-section::before,
+.marquee-section::after{
+content:'';
+position:absolute;top:0;bottom:0;
+width:100px;z-index:2;pointer-events:none;
+}
+
+.marquee-section::before{left:0;background:linear-gradient(90deg,var(--surface),transparent)}
+.marquee-section::after{right:0;background:linear-gradient(-90deg,var(--surface),transparent)}
+
+.marquee-track{
+display:flex;
+gap:10px;
+width:max-content;
+animation:marquee-scroll 30s linear infinite;
+}
+
+.marquee-item{
+display:inline-flex;
+align-items:center;
+gap:8px;
+background:rgba(255,255,255,0.03);
+border:1px solid var(--border);
+border-radius:999px;
+padding:7px 16px;
+font-size:13px;
+font-weight:500;
+color:var(--muted);
+white-space:nowrap;
+}
+
+.marquee-item-dot{
+width:5px;height:5px;
+border-radius:50%;
+background:var(--em);
+opacity:0.7;
+}
+
+@keyframes marquee-scroll{
+from{transform:translateX(0)}
+to{transform:translateX(-50%)}
+}
+
+section.features{
+padding:100px 0;
+position:relative;
+}
+
+.section-tag{
+display:inline-flex;
+align-items:center;
+gap:6px;
+background:var(--em3);
+border:1px solid rgba(255,106,26,0.18);
+color:var(--em2);
+font-size:10.5px;
+font-weight:700;
+letter-spacing:0.12em;
+text-transform:uppercase;
+padding:5px 12px;
+border-radius:999px;
+margin-bottom:14px;
+}
+
+.section-title{
+font-family:var(--font-display);
+font-size:clamp(34px,4.5vw,54px);
+font-weight:900;
+letter-spacing:-0.03em;
+line-height:1.05;
+}
+
+.section-title em{
+font-style:normal;
+background:linear-gradient(125deg,#ff6a1a,#ffb060);
+-webkit-background-clip:text;
+background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.features-header{
+display:flex;
+align-items:flex-end;
+justify-content:space-between;
+gap:32px;
+margin-bottom:52px;
+}
+
+.features-header-sub{
+font-size:15px;
+color:var(--muted);
+max-width:260px;
+text-align:right;
+line-height:1.65;
+}
+
+.features-grid{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+gap:14px;
+}
+
+.feat-card{
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:var(--radius);
+padding:28px;
+position:relative;
+overflow:hidden;
+transition:border-color 0.25s,transform 0.25s;
+}
+
+.feat-card:hover{
+border-color:rgba(255,106,26,0.25);
+transform:translateY(-3px);
+}
+
+.feat-card::before{
+content:'';
+position:absolute;inset:0;
+pointer-events:none;
+opacity:0;
+background:radial-gradient(320px circle at var(--mx,50%) var(--my,50%),rgba(255,106,26,0.07),transparent 70%);
+transition:opacity 0.3s;
+}
+
+.feat-card:hover::before{opacity:1}
+
+.feat-card.wide{grid-column:span 2}
+
+.feat-icon{
+width:46px;height:46px;
+background:var(--em3);
+border-radius:13px;
+display:flex;
+align-items:center;
+justify-content:center;
+margin-bottom:20px;
+border:1px solid rgba(255,106,26,0.15);
+}
+
+.feat-icon svg{width:20px;height:20px;stroke:var(--em);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.feat-title{
+font-family:var(--font-display);
+font-size:20px;
+font-weight:800;
+letter-spacing:-0.02em;
+margin-bottom:8px;
+}
+
+.feat-desc{
+font-size:14px;
+color:var(--muted);
+line-height:1.65;
+}
+
+.feat-checks{
+margin-top:18px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.feat-check{
+display:flex;
+align-items:flex-start;
+gap:10px;
+font-size:13.5px;
+color:rgba(245,240,238,0.72);
+line-height:1.5;
+}
+
+.feat-check svg{
+width:15px;height:15px;
+stroke:var(--em);
+fill:none;
+stroke-width:2.5;
+stroke-linecap:round;
+stroke-linejoin:round;
+flex-shrink:0;
+margin-top:2px;
+}
+
+.feat-image-wrap{
+margin-top:24px;
+border-radius:13px;
+overflow:hidden;
+border:1px solid var(--border);
+}
+
+.feat-image-wrap img{width:100%;opacity:0.8}
+
+.feat-cta{
+display:inline-flex;
+align-items:center;
+gap:8px;
+background:var(--em);
+color:#09080a;
+font-size:13px;
+font-weight:800;
+padding:9px 20px;
+border-radius:999px;
+border:none;
+cursor:pointer;
+margin-top:24px;
+transition:all 0.2s;
+text-decoration:none;
+font-family:var(--font-display);
+letter-spacing:-0.01em;
+}
+
+.feat-cta:hover{background:var(--em2);transform:translateY(-1px)}
+
+.feat-cta svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+.analytics-stats{
+display:flex;
+gap:10px;
+margin-bottom:16px;
+margin-top:20px;
+}
+
+.stat-pill{
+background:rgba(255,255,255,0.04);
+border:1px solid var(--border);
+border-radius:999px;
+padding:6px 14px;
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.stat-label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted2)}
+.stat-val{font-size:14px;font-weight:700;font-family:var(--font-display)}
+
+.wave-svg{width:100%;height:80px}
+
+.discord-preview{
+margin-top:20px;
+display:flex;
+flex-direction:column;
+gap:8px;
+}
+
+.discord-widget{
+background:rgba(255,255,255,0.03);
+border:1px solid var(--border);
+border-radius:13px;
+padding:12px 14px;
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.discord-avatar{
+width:38px;height:38px;
+border-radius:10px;
+background:var(--surface2);
+flex-shrink:0;
+overflow:hidden;
+position:relative;
+}
+
+.discord-avatar img{width:100%;height:100%;object-fit:cover}
+
+.status-dot{
+position:absolute;
+bottom:1px;right:1px;
+width:10px;height:10px;
+border-radius:50%;
+background:#3ba55c;
+border:2px solid var(--surface);
+}
+
+.discord-info{flex:1;min-width:0}
+.discord-name{font-size:13px;font-weight:600;margin-bottom:2px;font-family:var(--font-display)}
+.discord-handle{font-size:11px;color:var(--muted)}
+
+.discord-join{
+background:rgba(88,101,242,0.18);
+border:1px solid rgba(88,101,242,0.35);
+color:#8f9eff;
+font-size:11px;
+font-weight:700;
+padding:5px 12px;
+border-radius:999px;
+cursor:pointer;
+transition:background 0.2s;
+flex-shrink:0;
+font-family:var(--font-display);
+}
+
+.discord-join:hover{background:rgba(88,101,242,0.32)}
+
+section.pricing{
+padding:100px 0;
+position:relative;
+}
+
+.pricing-header{
+text-align:center;
+margin-bottom:52px;
+}
+
+.pricing-header p{
+font-size:clamp(20px,3vw,32px);
+font-family:var(--font-display);
+font-weight:800;
+max-width:540px;
+margin:0 auto;
+line-height:1.25;
+letter-spacing:-0.025em;
+}
+
+.pricing-header p em{
+font-style:normal;
+color:var(--em);
+}
+
+.pricing-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:14px;
+max-width:800px;
+margin:0 auto;
+}
+
+.plan-card{
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:var(--radius);
+overflow:hidden;
+}
+
+.plan-card.featured{border-color:rgba(255,106,26,0.3)}
+
+.plan-hero{
+height:140px;
+position:relative;
+overflow:hidden;
+background:linear-gradient(135deg,var(--surface2),var(--bg));
+display:flex;
+align-items:flex-end;
+padding:20px 24px;
+}
+
+.plan-card.featured .plan-hero{
+background:linear-gradient(135deg,rgba(255,106,26,0.12),rgba(255,106,26,0.03));
+}
+
+.plan-hero-glow{
+position:absolute;
+inset:0;
+background:radial-gradient(circle at 50% 30%,rgba(255,106,26,0.14),transparent 60%);
+}
+
+.plan-hero-line{
+position:absolute;
+bottom:0;left:0;right:0;
+height:1px;
+background:linear-gradient(90deg,transparent,rgba(255,106,26,0.6),transparent);
+}
+
+.plan-name{
+font-family:var(--font-display);
+font-size:24px;
+font-weight:900;
+position:relative;
+z-index:1;
+letter-spacing:-0.03em;
+}
+
+.plan-body{padding:24px}
+
+.plan-price{
+display:flex;
+align-items:baseline;
+gap:8px;
+margin-bottom:4px;
+}
+
+.plan-price-main{
+font-family:var(--font-display);
+font-size:40px;
+font-weight:900;
+letter-spacing:-0.04em;
+}
+
+.plan-price-old{
+font-size:16px;
+color:var(--muted2);
+text-decoration:line-through;
+}
+
+.plan-desc{font-size:13px;color:var(--muted);margin-bottom:20px}
+
+.plan-features{
+display:flex;
+flex-direction:column;
+gap:10px;
+margin-bottom:24px;
+}
+
+.plan-feat{
+display:flex;
+align-items:center;
+gap:10px;
+font-size:13.5px;
+}
+
+.plan-feat svg{
+width:14px;height:14px;
+fill:none;
+stroke-width:2.5;
+stroke-linecap:round;
+stroke-linejoin:round;
+flex-shrink:0;
+}
+
+.plan-card:not(.featured) .plan-feat svg{stroke:var(--muted2)}
+.plan-card.featured .plan-feat svg{stroke:var(--em)}
+.plan-card:not(.featured) .plan-feat{color:rgba(245,240,238,0.65)}
+
+.plan-btn{
+width:100%;
+padding:13px;
+border-radius:13px;
+font-family:var(--font-display);
+font-size:14px;
+font-weight:800;
+cursor:pointer;
+transition:all 0.2s;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:8px;
+border:none;
+letter-spacing:-0.01em;
+}
+
+.plan-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+.plan-btn.ghost{
+background:rgba(255,255,255,0.05);
+color:var(--text);
+border:1px solid var(--border2);
+}
+
+.plan-btn.ghost:hover{background:rgba(255,255,255,0.09)}
+
+.plan-btn.solid{
+background:var(--em);
+color:#09080a;
+}
+
+.plan-btn.solid:hover{background:var(--em2);transform:translateY(-1px)}
+
+.pricing-note{
+max-width:800px;
+margin:14px auto 0;
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:16px;
+padding:16px 22px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:16px;
+flex-wrap:wrap;
+}
+
+.pricing-note-text p:first-child{font-weight:600;margin-bottom:3px;font-family:var(--font-display);letter-spacing:-0.01em}
+.pricing-note-text p:last-child{font-size:13px;color:var(--muted)}
+
+.pricing-note-btn{
+display:inline-flex;
+align-items:center;
+gap:8px;
+background:var(--em);
+color:#09080a;
+font-size:13px;
+font-weight:800;
+padding:9px 18px;
+border-radius:999px;
+cursor:pointer;
+text-decoration:none;
+transition:all 0.2s;
+white-space:nowrap;
+font-family:var(--font-display);
+}
+
+.pricing-note-btn:hover{background:var(--em2)}
+.pricing-note-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+section.faq{
+padding:100px 0;
+}
+
+.faq-inner{
+display:grid;
+grid-template-columns:1fr 1.2fr;
+gap:80px;
+align-items:start;
+max-width:880px;
+margin:0 auto;
+}
+
+.faq-side-title{
+font-family:var(--font-display);
+font-size:clamp(32px,4vw,50px);
+font-weight:900;
+letter-spacing:-0.035em;
+line-height:1.06;
+margin-bottom:12px;
+}
+
+.faq-side-title span{color:var(--muted2)}
+
+.faq-side-sub{
+font-size:15px;
+color:var(--muted);
+line-height:1.65;
+}
+
+.faq-list{
+display:flex;
+flex-direction:column;
+gap:8px;
+}
+
+.faq-item{
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:15px;
+overflow:hidden;
+transition:border-color 0.2s;
+}
+
+.faq-item.open{border-color:rgba(255,106,26,0.25)}
+
+.faq-q{
+width:100%;
+background:none;
+border:none;
+cursor:pointer;
+padding:16px 20px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:16px;
+text-align:left;
+}
+
+.faq-q-text{
+font-size:14px;
+font-weight:600;
+color:var(--text);
+line-height:1.4;
+font-family:var(--font-display);
+letter-spacing:-0.01em;
+}
+
+.faq-q-icon{
+width:22px;height:22px;
+border-radius:50%;
+background:rgba(255,255,255,0.05);
+display:flex;
+align-items:center;
+justify-content:center;
+flex-shrink:0;
+transition:background 0.2s,transform 0.3s;
+font-size:14px;
+color:var(--muted);
+}
+
+.faq-item.open .faq-q-icon{
+background:var(--em3);
+color:var(--em);
+transform:rotate(45deg);
+}
+
+.faq-a{
+max-height:0;
+overflow:hidden;
+transition:max-height 0.35s ease;
+}
+
+.faq-a-inner{
+padding:0 20px 16px;
+font-size:13.5px;
+color:var(--muted);
+line-height:1.7;
+}
+
+section.cta{
+padding:80px 0 100px;
+}
+
+.cta-inner{
+background:var(--surface);
+border:1px solid var(--border2);
+border-radius:28px;
+padding:64px 56px;
+text-align:center;
+position:relative;
+overflow:hidden;
+}
+
+.cta-inner::before{
+content:'';
+position:absolute;
+top:0;left:50%;
+transform:translateX(-50%);
+width:60%;height:1px;
+background:linear-gradient(90deg,transparent,rgba(255,106,26,0.6),transparent);
+}
+
+.cta-glow{
+position:absolute;
+top:50%;left:50%;
+transform:translate(-50%,-50%);
+width:700px;height:400px;
+background:radial-gradient(ellipse,rgba(255,106,26,0.09) 0%,transparent 65%);
+pointer-events:none;
+}
+
+.cta-title{
+font-family:var(--font-display);
+font-size:clamp(30px,4.5vw,52px);
+font-weight:900;
+letter-spacing:-0.035em;
+line-height:1.1;
+margin-bottom:14px;
+position:relative;
+z-index:1;
+}
+
+.cta-title span{
+display:block;
+background:linear-gradient(125deg,#ff6a1a,#ffb060);
+-webkit-background-clip:text;
+background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.cta-sub{
+font-size:16px;
+color:var(--muted);
+margin-bottom:36px;
+position:relative;
+z-index:1;
+}
+
+.cta-btns{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:12px;
+flex-wrap:wrap;
+position:relative;
+z-index:1;
+}
+
+.cta-btn-main{
+display:inline-flex;
+align-items:center;
+gap:8px;
+background:var(--em);
+color:#09080a;
+font-size:15px;
+font-weight:800;
+padding:14px 30px;
+border-radius:999px;
+border:none;
+cursor:pointer;
+transition:all 0.2s;
+text-decoration:none;
+font-family:var(--font-display);
+letter-spacing:-0.01em;
+}
+
+.cta-btn-main:hover{background:var(--em2);transform:translateY(-1px)}
+.cta-btn-main svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+.cta-btn-sec{
+display:inline-flex;
+align-items:center;
+gap:8px;
+background:rgba(255,255,255,0.05);
+border:1px solid var(--border2);
+color:var(--text);
+font-size:15px;
+font-weight:600;
+padding:14px 30px;
+border-radius:999px;
+cursor:pointer;
+transition:all 0.2s;
+text-decoration:none;
+}
+
+.cta-btn-sec:hover{background:rgba(255,255,255,0.09)}
+.cta-btn-sec svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+.cta-footnote{
+font-size:12px;
+color:var(--muted2);
+margin-top:16px;
+position:relative;
+z-index:1;
+}
+
+footer{
+border-top:1px solid var(--border);
+padding:32px 0 44px;
+position:relative;
+}
+
+footer::before{
+content:'';
+position:absolute;
+top:0;left:50%;
+transform:translateX(-50%);
+width:50%;height:1px;
+background:linear-gradient(90deg,transparent,rgba(255,106,26,0.45),transparent);
+}
+
+.footer-inner{display:flex;flex-direction:column;gap:22px}
+
+.footer-top{
+display:flex;
+align-items:center;
+justify-content:space-between;
+flex-wrap:wrap;
+gap:16px;
+}
+
+.footer-logo{display:flex;align-items:center;gap:10px}
+
+.footer-logo-mark{
+width:26px;height:26px;
+border-radius:7px;
+overflow:hidden;
+display:flex;align-items:center;justify-content:center;
+}
+
+.footer-logo-mark img{
+width:26px;height:26px;
+object-fit:cover;
+border-radius:7px;
+}
+
+.footer-logo-text{
+font-family:var(--font-display);
+font-size:14px;
+font-weight:900;
+letter-spacing:-0.01em;
+}
+
+.footer-logo-text span{color:var(--em)}
+
+.footer-status{
+display:inline-flex;
+align-items:center;
+gap:8px;
+background:rgba(255,255,255,0.03);
+border:1px solid var(--border);
+border-radius:999px;
+padding:5px 13px;
+font-size:11px;
+color:var(--muted);
+margin-left:12px;
+text-decoration:none;
+transition:border-color 0.2s;
+}
+
+.footer-status:hover{border-color:rgba(255,255,255,0.15)}
+
+.status-ping{position:relative;width:7px;height:7px}
+.status-ping span:first-child{
+position:absolute;inset:0;
+border-radius:50%;
+background:rgba(61,255,160,0.5);
+animation:ping 1.5s ease infinite;
+}
+.status-ping span:last-child{
+position:absolute;inset:1px;
+border-radius:50%;
+background:#3dffa0;
+}
+
+@keyframes ping{
+0%{transform:scale(1);opacity:0.7}
+70%{transform:scale(2);opacity:0}
+100%{transform:scale(2);opacity:0}
+}
+
+.footer-links{display:flex;flex-wrap:wrap;gap:4px}
+
+.footer-links a{
+font-size:13px;
+color:var(--muted);
+padding:4px 10px;
+border-radius:8px;
+transition:color 0.2s,background 0.2s;
+}
+
+.footer-links a:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+
+.footer-bottom{
+display:flex;
+align-items:center;
+justify-content:space-between;
+flex-wrap:wrap;
+gap:8px;
+padding-top:20px;
+border-top:1px solid var(--border);
+}
+
+.footer-copy{font-size:12px;color:var(--muted2)}
+
+@keyframes fadeUp{
+from{opacity:0;transform:translateY(18px)}
+to{opacity:1;transform:translateY(0)}
+}
+
+@media(max-width:1024px){
+.features-grid{grid-template-columns:1fr 1fr}
+.feat-card.wide{grid-column:span 2}
+}
+
+@media(max-width:768px){
+nav{padding:12px 16px}
+.nav-links{display:none}
+.mobile-menu-btn{display:flex}
+
+.hero{padding:110px 16px 64px}
+.hero-content{max-width:100%}
+.hero-input-wrap{max-width:100%}
+.hero-stats{gap:20px}
+.hero-stat-sep{display:none}
+
+.features-grid{grid-template-columns:1fr;gap:12px}
+.feat-card.wide{grid-column:span 1}
+.features-header{flex-direction:column;gap:12px}
+.features-header-sub{text-align:left;max-width:100%}
+
+.pricing-grid{grid-template-columns:1fr}
+.pricing-note{flex-direction:column;text-align:center}
+
+.faq-inner{grid-template-columns:1fr;gap:40px}
+
+.cta-inner{padding:44px 24px}
+.cta-btns{flex-direction:column;width:100%}
+.cta-btn-main,.cta-btn-sec{width:100%;justify-content:center}
+
+.footer-top{flex-direction:column;align-items:flex-start}
+.footer-bottom{flex-direction:column;align-items:flex-start}
+}
+
+@media(max-width:480px){
+.hero-h1{font-size:40px}
+.nav-inner{padding:7px 8px 7px 16px}
+.container{padding:0 16px}
+.cta-inner{padding:36px 20px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="nav-inner">
+<a href="/" class="nav-logo">
+<div class="nav-logo-mark">
+<img src="https://i.imgur.com/kj1LSyK.png" alt="wlc.lol logo" width="30" height="30"/>
+</div>
+<span class="nav-logo-text">wlc<span>.</span>lol</span>
+</a>
+<div class="nav-links">
+<a href="#features" class="active">Features</a>
+<a href="/leaderboard">Leaderboard</a>
+<a href="#pricing">Pricing</a>
+<a href="#faq">FAQ</a>
+<a href="https://discord.gg/wlclol" target="_blank" rel="noopener noreferrer">Discord</a>
+</div>
+<div class="nav-actions">
+<a href="/register"><button class="btn-primary">Get started</button></a>
+<button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menu" id="mobileBtn">
+<span></span><span></span><span></span>
+</button>
+</div>
+</div>
+</nav>
+
+<div class="mobile-nav" id="mobileNav">
+<a href="#features" onclick="closeMenu()">Features</a>
+<a href="/leaderboard" onclick="closeMenu()">Leaderboard</a>
+<a href="#pricing" onclick="closeMenu()">Pricing</a>
+<a href="#faq" onclick="closeMenu()">FAQ</a>
+<a href="https://discord.gg/wlclol" target="_blank" rel="noopener noreferrer" onclick="closeMenu()">Discord</a>
+<a href="/register" class="mobile-cta">Claim your username — free</a>
+</div>
+
+<section class="hero">
+<div class="hero-bg">
+<div class="hero-glow"></div>
+<div class="hero-orb"></div>
+<div class="hero-orb2"></div>
+<div class="hero-grid"></div>
+</div>
+<div class="hero-content">
+<div class="hero-badge">
+<span class="hero-badge-dot"></span>
+Your username is waiting
+</div>
+<h1 class="hero-h1">
+<span class="line1">One link,</span>
+<span class="line2">all of you.</span>
+</h1>
+<p class="hero-sub">Custom backgrounds, animated effects, Discord widgets, and real-time analytics — all in one clean link, completely free.</p>
+<div class="hero-input-wrap">
+<span class="hero-input-prefix">wlc.lol/</span>
+<input type="text" class="hero-input" placeholder="username" id="usernameInput" aria-label="Choose your username"/>
+<button class="hero-claim-btn" onclick="claimUsername()">Claim</button>
+</div>
+<div class="hero-stats">
+<div class="hero-stat">
+<span class="hero-stat-num" id="statUsers">—</span>
+<span class="hero-stat-label">Users</span>
+</div>
+<div class="hero-stat-sep"></div>
+<div class="hero-stat">
+<span class="hero-stat-num" id="statViews">—</span>
+<span class="hero-stat-label">Page views</span>
+</div>
+<div class="hero-stat-sep"></div>
+<div class="hero-stat">
+<span class="hero-stat-num">100<span>%</span></span>
+<span class="hero-stat-label">Free to start</span>
+</div>
+</div>
+</div>
+</section>
+
+<div class="marquee-section">
+<div class="marquee-track" id="marqueeTrack"></div>
+</div>
+
+<section class="features" id="features">
+<div class="container">
+<div class="features-header">
+<div>
+<div class="section-tag">
+<svg width="11" height="11" viewBox="0 0 24 24" fill="var(--em2)" stroke="none"><path d="M13 3L4 14h8l-1 7 9-11h-8l1-7z"/></svg>
+Built for your page
+</div>
+<h2 class="section-title">Make it <em>yours.</em></h2>
+</div>
+<p class="features-header-sub">Every tool to style your page and track what resonates.</p>
+</div>
+
+<div class="features-grid">
+<div class="feat-card wide">
+<div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:24px;align-items:start">
+<div>
+<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+<span style="background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;font-family:var(--font-display)">Customize</span>
+<span style="background:var(--em3);border:1px solid rgba(255,106,26,0.22);border-radius:999px;padding:4px 12px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--em2);font-family:var(--font-display)">Profile</span>
+</div>
+<h3 class="feat-title">Straight from the dashboard</h3>
+<div class="feat-checks">
+<div class="feat-check"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Appearance, colors, media, effects, layout &amp; integrations</div>
+<div class="feat-check"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Username, background, and cursor effects from the real editor</div>
+<div class="feat-check"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Custom media backgrounds plus audio and embed options</div>
+</div>
+<a href="/register" class="feat-cta">
+Customize
+<svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+</a>
+</div>
+<div style="margin-top:8px">
+<div class="feat-image-wrap">
+<img src="/images/tabs.png" alt="Profile customization tabs preview" loading="lazy"/>
+</div>
+</div>
+</div>
+</div>
+
+<div class="feat-card">
+<div class="feat-icon">
+<svg viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+</div>
+<h3 class="feat-title">Analytics</h3>
+<p class="feat-desc">See views, clicks, and performance in a clean dashboard snapshot.</p>
+<div class="analytics-stats">
+<div class="stat-pill"><span class="stat-label">Views</span><span class="stat-val">24.8K</span></div>
+<div class="stat-pill"><span class="stat-label">Clicks</span><span class="stat-val">3.1K</span></div>
+</div>
+<div style="margin-top:4px">
+<svg class="wave-svg" viewBox="0 0 320 80" preserveAspectRatio="none" aria-hidden="true">
+<defs>
+<linearGradient id="waveGrad" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="rgba(255,106,26,0.28)"/>
+<stop offset="100%" stop-color="rgba(255,106,26,0)"/>
+</linearGradient>
+</defs>
+<path d="M0,62 C24,58 34,30 54,26 C78,21 92,51 112,41 C134,30 146,0 166,0 C188,0 200,38 220,28 C244,16 252,0 274,4 C294,8 306,22 320,18 L320,80 L0,80 Z" fill="url(#waveGrad)"/>
+<path d="M0,62 C24,58 34,30 54,26 C78,21 92,51 112,41 C134,30 146,0 166,0 C188,0 200,38 220,28 C244,16 252,0 274,4 C294,8 306,22 320,18" fill="none" stroke="var(--em)" stroke-width="2.5" stroke-linecap="round"/>
+</svg>
+</div>
+</div>
+
+<div class="feat-card">
+<div class="feat-icon">
+<svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg>
+</div>
+<h3 class="feat-title">Layouts</h3>
+<p class="feat-desc">Explore real profile layouts and find your vibe.</p>
+<div style="margin-top:16px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:13px;padding:14px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+<div style="display:flex;gap:6px">
+<div style="width:8px;height:8px;border-radius:2px;background:rgba(255,255,255,0.1)"></div>
+<div style="width:8px;height:8px;border-radius:2px;background:rgba(255,255,255,0.1)"></div>
+<div style="width:8px;height:8px;border-radius:2px;background:rgba(255,255,255,0.1)"></div>
+</div>
+<div style="display:flex;align-items:center;gap:4px">
+<div class="status-ping" style="transform:scale(0.9)"><span></span><span></span></div>
+<span style="font-size:10px;color:var(--em)">Online</span>
+</div>
+</div>
+<div style="height:8px;width:60%;background:rgba(255,255,255,0.08);border-radius:4px;margin-bottom:6px"></div>
+<div style="height:6px;width:40%;background:rgba(255,255,255,0.05);border-radius:4px;margin-bottom:16px"></div>
+<div style="display:flex;gap:6px">
+<div style="flex:1;height:28px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px"></div>
+<div style="flex:1;height:28px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px"></div>
+</div>
+</div>
+<div style="display:flex;justify-content:flex-end;margin-top:12px;gap:4px">
+<div style="width:20px;height:4px;border-radius:999px;background:rgba(255,255,255,0.1)"></div>
+<div style="width:32px;height:4px;background:linear-gradient(90deg,#ff6a1a,#ffb060);border-radius:999px"></div>
+<div style="width:20px;height:4px;border-radius:999px;background:rgba(255,255,255,0.1)"></div>
+<div style="width:20px;height:4px;border-radius:999px;background:rgba(255,255,255,0.1)"></div>
+</div>
+</div>
+
+<div class="feat-card wide">
+<div>
+<div class="section-tag" style="margin-bottom:12px">Integrations</div>
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+<div>
+<h3 class="feat-title">Widgets &amp; Music Players</h3>
+<p class="feat-desc" style="max-width:400px;margin-top:6px">Show Discord widgets and pair them with music player styles available on your profile.</p>
+</div>
+<a href="/register" class="feat-cta">
+Get started
+<svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+</a>
+</div>
+<div class="discord-preview">
+<p style="font-size:10.5px;color:var(--muted2);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:8px;font-family:var(--font-display)">Discord, server, and Spotify widgets</p>
+<div class="discord-widget">
+<div class="discord-avatar">
+<img src="https://i.imgur.com/OkA6xUX.jpeg" alt="kuden avatar" loading="lazy"/>
+<div class="status-dot"></div>
+</div>
+<div class="discord-info">
+<div class="discord-name">kuden</div>
+<div class="discord-handle">@kuden</div>
+</div>
+</div>
+<div class="discord-widget">
+<div class="discord-avatar" style="border-radius:10px">
+<img src="https://i.imgur.com/kj1LSyK.png" alt="wlc.lol Discord server icon" loading="lazy"/>
+</div>
+<div class="discord-info">
+<div class="discord-name">wlc.lol</div>
+<div class="discord-handle" style="display:flex;gap:10px">
+<span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#3ba55c;margin-right:4px;vertical-align:middle"></span>92 online</span>
+<span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#80848e;margin-right:4px;vertical-align:middle"></span>770 members</span>
+</div>
+</div>
+<button class="discord-join">Join</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="pricing" id="pricing">
+<div class="container">
+<div class="pricing-header">
+<div class="section-tag" style="display:inline-flex;margin-bottom:16px">Plans</div>
+<p>Start free, then upgrade once for <em>lifetime Premium access.</em></p>
+</div>
+<div class="pricing-grid">
+<div class="plan-card">
+<div class="plan-hero">
+<div class="plan-hero-glow"></div>
+<div class="plan-hero-line"></div>
+<div class="plan-name">Free</div>
+</div>
+<div class="plan-body">
+<div class="plan-price">
+<span class="plan-price-main">0€</span>
+</div>
+<p class="plan-desc">Perfect for getting started</p>
+<div class="plan-features">
+<div class="plan-feat"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Up to 10 Links</div>
+<div class="plan-feat"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Basic Layout</div>
+<div class="plan-feat"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Standard Fonts</div>
+<div class="plan-feat"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Discord Status</div>
+<div class="plan-feat"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Visitor Stats</div>
+</div>
+<a href="/register"><button class="plan-btn ghost">Start Free <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button></a>
+</div>
+</div>
+<div class="plan-card featured">
+<div class="plan-hero">
+<div class="plan-hero-glow"></div>
+<div class="plan-hero-line"></div>
+<div class="plan-name">Premium</div>
+</div>
+<div class="plan-body">
+<div class="plan-price">
+<span class="plan-price-main">3.99€</span>
+<span class="plan-price-old">8,00€</span>
+</div>
+<p class="plan-desc">Pay once, own forever</p>
+<div class="plan-features">
+<div class="plan-feat"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Premium Badge</div>
+<div class="plan-feat"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Username Effects</div>
+<div class="plan-feat"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Custom Branding</div>
+<div class="plan-feat"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Custom SEO</div>
+<div class="plan-feat"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>&amp; much more</div>
+</div>
+<button class="plan-btn solid" onclick="window.location.href='/register'">Upgrade to Premium <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+<p style="font-size:11px;color:var(--muted2);text-align:center;margin-top:12px">Secure payment via Lemon Squeezy</p>
+</div>
+</div>
+</div>
+<div class="pricing-note">
+<div class="pricing-note-text">
+<p>Want to compare everything?</p>
+<p>Visit the pricing page to compare free, Premium, and Image Host options.</p>
+</div>
+<a href="/pricing" class="pricing-note-btn">See full pricing <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+</div>
+</div>
+</section>
+
+<section class="faq" id="faq">
+<div class="container">
+<div class="faq-inner">
+<div>
+<h2 class="faq-side-title">Real questions.<br/><span>Straight answers.</span></h2>
+<p class="faq-side-sub">Everything you need to know before you lock in your page.</p>
+</div>
+<div class="faq-list" id="faqList">
+<div class="faq-item">
+<button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+<span class="faq-q-text">Can I actually use this for free?</span>
+<span class="faq-q-icon" aria-hidden="true">+</span>
+</button>
+<div class="faq-a"><div class="faq-a-inner">Yes — wlc.lol is completely free with custom themes, background effects, and analytics. No credit card required and no trial period. Premium unlocks additional advanced features.</div></div>
+</div>
+<div class="faq-item">
+<button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+<span class="faq-q-text">How customizable is my page?</span>
+<span class="faq-q-icon" aria-hidden="true">+</span>
+</button>
+<div class="faq-a"><div class="faq-a-inner">Custom backgrounds (images, GIFs, videos), animated username effects, cursor effects, Discord widgets, music players, custom fonts, profile effects like snowflakes and matrix rain, and real-time analytics.</div></div>
+</div>
+<div class="faq-item">
+<button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+<span class="faq-q-text">What is the Image Host?</span>
+<span class="faq-q-icon" aria-hidden="true">+</span>
+</button>
+<div class="faq-a"><div class="faq-a-inner">Image Host is a separate paid CDN file sharing service for external sharing — similar to ShareX. It includes 5GB of storage, geo-distributed edge delivery, anonymization support, and upload limits up to 500MB per file with Premium.</div></div>
+</div>
+<div class="faq-item">
+<button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+<span class="faq-q-text">Can I show Discord on my page?</span>
+<span class="faq-q-icon" aria-hidden="true">+</span>
+</button>
+<div class="faq-a"><div class="faq-a-inner">Yes. Show your Discord status, server member count, and more directly on your bio page with our Discord widget integration.</div></div>
+</div>
+<div class="faq-item">
+<button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+<span class="faq-q-text">Do you support custom domains?</span>
+<span class="faq-q-icon" aria-hidden="true">+</span>
+</button>
+<div class="faq-a"><div class="faq-a-inner">Yes, Premium users can connect custom domains to their profile page, and subdomain support is available as a separate add-on for Premium users.</div></div>
+</div>
+<div class="faq-item">
+<button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+<span class="faq-q-text">Is Premium monthly or one-time?</span>
+<span class="faq-q-icon" aria-hidden="true">+</span>
+</button>
+<div class="faq-a"><div class="faq-a-inner">Premium is a one-time 3.99 EUR payment with no monthly subscription. You pay once and keep it forever — no recurring charges.</div></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="cta">
+<div class="container">
+<div class="cta-inner">
+<div class="cta-glow"></div>
+<h2 class="cta-title">
+Everything you want, right here.
+<span>Create your page. Make it yours.</span>
+</h2>
+<p class="cta-sub">Join the wlc.lol community and create your space.</p>
+<div class="cta-btns">
+<a href="/register" class="cta-btn-main">
+Claim Username
+<svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+</a>
+<a href="/pricing" class="cta-btn-sec">
+See Plans
+<svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+</a>
+</div>
+<p class="cta-footnote">No card needed to start</p>
+</div>
+</div>
+</section>
+
+<footer>
+<div class="container">
+<div class="footer-inner">
+<div class="footer-top">
+<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+<div class="footer-logo">
+<div class="footer-logo-mark">
+<img src="https://i.imgur.com/kj1LSyK.png" alt="wlc.lol" width="26" height="26"/>
+</div>
+<span class="footer-logo-text" style="margin-left:8px">wlc<span>.</span>lol</span>
+</div>
+<a href="https://status.wlc.lol" target="_blank" rel="noopener noreferrer" class="footer-status">
+<div class="status-ping"><span></span><span></span></div>
+All systems online
+</a>
+</div>
+<div class="footer-links">
+<a href="/leaderboard">Leaderboard</a>
+<a href="/pricing">Pricing</a>
+<a href="/docs">Docs</a>
+<a href="/legal#terms">Terms</a>
+<a href="/legal#privacy">Privacy</a>
+<a href="https://discord.gg/wlclol" target="_blank" rel="noopener noreferrer">Discord</a>
+</div>
+</div>
+<div class="footer-bottom">
+<p class="footer-copy">© 2026 WLC.LOL. All rights reserved.</p>
+<p class="footer-copy">Built for creators, Discord users, and internet expression.</p>
+</div>
+</div>
+</div>
+</footer>
+
+<script>
+(function(){
+var platforms=['YouTube','TikTok','Instagram','Twitch','Twitter','Spotify','Discord','Snapchat','Threads','Kick','Bluesky','Behance'];
+var track=document.getElementById('marqueeTrack');
+var items='';
+for(var i=0;i<3;i++){
+platforms.forEach(function(p){
+items+='<div class="marquee-item"><span class="marquee-item-dot"></span>'+p+'</div>';
+});
+}
+track.innerHTML=items;
+})();
+
+function claimUsername(){
+  var username = document.getElementById('usernameInput').value.trim();
+  if(username.length >= 3){
+    window.location.href = '/register?username=' + encodeURIComponent(username);
+  } else {
+    window.location.href = '/register';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var input = document.getElementById('usernameInput');
+  if(input){
+    input.addEventListener('keydown', function(e){
+      if(e.key === 'Enter') claimUsername();
+    });
+  }
+});
+
+function toggleMenu(){
+var nav=document.getElementById('mobileNav');
+var open=nav.classList.toggle('open');
+nav.style.display=open?'flex':'none';
+}
+
+function closeMenu(){
+var nav=document.getElementById('mobileNav');
+nav.classList.remove('open');
+nav.style.display='none';
+}
+
+document.addEventListener('click',function(e){
+var nav=document.getElementById('mobileNav');
+var btn=document.getElementById('mobileBtn');
+if(nav.classList.contains('open')&&!nav.contains(e.target)&&!btn.contains(e.target)){
+closeMenu();
+}
+});
+
+function toggleFaq(btn){
+var item=btn.closest('.faq-item');
+var answer=item.querySelector('.faq-a');
+var isOpen=item.classList.contains('open');
+document.querySelectorAll('.faq-item.open').forEach(function(i){
+i.classList.remove('open');
+i.querySelector('.faq-a').style.maxHeight='0';
+i.querySelector('.faq-q').setAttribute('aria-expanded','false');
+});
+if(!isOpen){
+item.classList.add('open');
+answer.style.maxHeight=answer.scrollHeight+'px';
+btn.setAttribute('aria-expanded','true');
+}
+}
+
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+a.addEventListener('click',function(e){
+var target=document.querySelector(a.getAttribute('href'));
+if(target){
+e.preventDefault();
+closeMenu();
+var top=target.getBoundingClientRect().top+window.pageYOffset-80;
+window.scrollTo({top:top,behavior:'smooth'});
+}
+});
+});
+
+document.querySelectorAll('.feat-card').forEach(function(card){
+card.addEventListener('mousemove',function(e){
+var r=card.getBoundingClientRect();
+card.style.setProperty('--mx',(e.clientX-r.left)+'px');
+card.style.setProperty('--my',(e.clientY-r.top)+'px');
+});
+});
+
+// ── Live platform stats ───────────────────────────────────────────────────────
+(async function loadStats() {
+  function fmtNum(n) {
+    if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M+';
+    if (n >= 1000)    return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K+';
+    return n + '';
+  }
+  try {
+    const r = await fetch('/api/stats/public');
+    const d = await r.json();
+    if (d.success) {
+      document.getElementById('statUsers').innerHTML = fmtNum(d.users);
+      document.getElementById('statViews').innerHTML = fmtNum(d.views);
+    }
+  } catch(e) {
+    // silently fallback — keep dashes
+  }
+})();
+</script>
+</body>
+</html>

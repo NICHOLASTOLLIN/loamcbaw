@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>wlc.lol - register</title>
+<meta name="description" content="Create an account to build your personalized bio link page with custom layouts and analytics."/>
+<link rel="icon" href="https://i.imgur.com/kj1LSyK.png" type="image/png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#09080a;
+--surface:#111013;
+--surface2:#18161b;
+--border:rgba(255,255,255,0.06);
+--border2:rgba(255,255,255,0.1);
+--em:#ff6a1a;
+--em2:#ff8c4a;
+--emglow:rgba(255,106,26,0.22);
+--text:#f5f0ee;
+--muted:#8a7e7a;
+--muted2:#52463f;
+--font-display:'Cabinet Grotesk',sans-serif;
+--font-body:'Instrument Sans',sans-serif;
+--radius:20px;
+--success:#22c87a;
+--danger:#ff4757;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit}
+img{display:block;max-width:100%}
+.container{width:100%;max-width:1160px;margin:0 auto;padding:0 28px}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 24px;display:flex;justify-content:center;}
+.nav-inner{width:100%;max-width:1080px;background:rgba(9,8,10,0.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--border2);border-radius:999px;padding:7px 8px 7px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0;}
+.nav-logo-mark{width:30px;height:30px;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.nav-logo-mark img{width:30px;height:30px;object-fit:cover;border-radius:9px;}
+.nav-logo-text{font-family:var(--font-display);font-weight:900;font-size:15px;letter-spacing:-0.01em;color:var(--text);}
+.nav-logo-text span{color:var(--em)}
+.nav-links{display:flex;align-items:center;gap:2px;}
+.nav-links a{font-family:var(--font-body);font-size:13.5px;font-weight:500;color:var(--muted);padding:7px 15px;border-radius:999px;transition:color 0.2s,background 0.2s;text-decoration:none;white-space:nowrap;}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,0.05)}
+.nav-links a.active{color:var(--text);background:rgba(255,255,255,0.07)}
+.nav-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.btn-primary{background:var(--em);color:#09080a;font-family:var(--font-display);font-size:13px;font-weight:800;padding:8px 20px;border-radius:999px;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:-0.01em;}
+.btn-primary:hover{background:var(--em2);transform:translateY(-1px)}
+.mobile-menu-btn{display:none;background:none;border:1px solid var(--border2);color:var(--muted);width:38px;height:38px;border-radius:12px;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px;flex-shrink:0;}
+.mobile-menu-btn span{display:block;width:16px;height:1.5px;background:currentColor;border-radius:2px;transition:all 0.3s;}
+.mobile-nav{display:none;position:fixed;top:82px;left:16px;right:16px;z-index:99;background:rgba(9,8,10,0.96);backdrop-filter:blur(24px);border:1px solid var(--border2);border-radius:20px;padding:12px;flex-direction:column;gap:4px;opacity:0;transform:translateY(-8px);transition:all 0.25s;pointer-events:none;}
+.mobile-nav.open{opacity:1;transform:translateY(0);pointer-events:all}
+.mobile-nav a{display:flex;width:100%;font-family:var(--font-body);font-size:14px;font-weight:500;color:var(--text);padding:12px 16px;border-radius:12px;text-decoration:none;transition:background 0.2s;}
+.mobile-nav a:hover{background:rgba(255,255,255,0.05)}
+.mobile-nav .mobile-cta{margin-top:8px;background:var(--em);color:#09080a;font-weight:800;border-radius:12px;justify-content:center;font-family:var(--font-display);}
+.register-wrapper{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:130px 24px 80px;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:48px 40px;width:100%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+.logo{width:48px;height:48px;margin:0 auto 24px;display:block;border-radius:12px;}
+h1{font-family:var(--font-display);font-size:28px;font-weight:700;text-align:center;margin-bottom:8px;color:var(--text);}
+.subtitle{text-align:center;color:var(--muted);font-size:14px;margin-bottom:32px;}
+.form-group{margin-bottom:20px;}
+.form-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);}
+.char-count{color:var(--muted2);font-size:11px;}
+.input-wrapper{position:relative;}
+input{width:100%;padding:12px 16px;background:var(--bg);border:1px solid var(--border2);border-radius:12px;color:var(--text);font-size:14px;font-family:var(--font-body);transition:all 0.2s;outline:none;}
+input:focus{border-color:var(--em);background:var(--surface2);}
+input::placeholder{color:var(--muted2);}
+.toggle-password{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;transition:color 0.2s;}
+.toggle-password:hover{color:var(--em);}
+.toggle-password svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;}
+.btn-submit{width:100%;padding:14px;background:var(--em);border:none;border-radius:12px;color:#09080a;font-size:15px;font-weight:700;font-family:var(--font-display);cursor:pointer;transition:all 0.2s;margin-top:8px;}
+.btn-submit:hover{background:var(--em2);transform:translateY(-1px);box-shadow:0 4px 12px var(--emglow);}
+.btn-submit:active{transform:translateY(0);}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed;}
+.footer-text{text-align:center;margin-top:24px;font-size:14px;color:var(--muted);}
+.footer-text a{color:var(--em);text-decoration:none;font-weight:500;transition:color 0.2s;}
+.footer-text a:hover{color:var(--em2);}
+.code-grid{display:flex;justify-content:center;gap:10px;margin:30px 0;}
+.code-input{width:50px;height:60px;text-align:center;font-size:1.8rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-display);font-weight:600;transition:border-color 0.2s,box-shadow 0.2s;}
+.code-input:focus{border-color:var(--em);outline:none;box-shadow:0 0 0 3px rgba(255,106,26,0.1);}
+.resend{font-size:0.85rem;color:var(--muted);text-align:center;margin-top:20px;}
+.resend button{background:none;border:none;color:var(--em);cursor:pointer;text-decoration:underline;font-weight:600;font-family:var(--font-body);}
+.resend button:disabled{color:var(--muted2);cursor:not-allowed;text-decoration:none;}
+.hidden{display:none;}
+.validation-msg{font-size:0.85rem;margin-top:8px;min-height:20px;}
+.validation-msg.success{color:var(--success);}
+.validation-msg.error{color:var(--danger);}
+.flash-msg{padding:18px 20px;border-radius:14px;font-size:0.95rem;display:flex;align-items:center;gap:14px;margin-bottom:28px;animation:fadeIn 0.3s ease;}
+.flash-error{background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.2);color:var(--danger);}
+.flash-success{background:rgba(34,200,122,0.1);border:1px solid rgba(34,200,122,0.2);color:var(--success);}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.spinner{width:18px;height:18px;border:2px solid rgba(0,0,0,0.1);border-top-color:currentColor;border-radius:50%;animation:spin 0.8s linear infinite;display:none;margin:0 auto;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.btn-submit.loading .spinner{display:block;}
+.btn-submit.loading span{display:none;}
+footer{background:var(--surface);border-top:1px solid var(--border);padding:48px 0 32px;}
+.footer-inner{display:flex;flex-direction:column;gap:32px;}
+.footer-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:32px;}
+.footer-logo{display:flex;align-items:center;gap:4px;}
+.footer-logo-mark{width:26px;height:26px;border-radius:8px;overflow:hidden;flex-shrink:0;}
+.footer-logo-mark img{width:100%;height:100%;object-fit:cover;}
+.footer-logo-text{font-family:var(--font-display);font-weight:900;font-size:15px;letter-spacing:-0.01em;color:var(--text);}
+.footer-logo-text span{color:var(--em);}
+.footer-status{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:999px;font-size:12px;font-weight:500;color:#22c55e;text-decoration:none;}
+.status-ping{position:relative;width:8px;height:8px;}
+.status-ping span{position:absolute;inset:0;background:#22c55e;border-radius:50%;}
+.status-ping span:first-child{animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;}
+@keyframes ping{75%,100%{transform:scale(2);opacity:0;}}
+.footer-links{display:flex;flex-wrap:wrap;gap:24px;}
+.footer-links a{font-size:14px;color:var(--muted);text-decoration:none;transition:color 0.2s;}
+.footer-links a:hover{color:var(--text);}
+.footer-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding-top:24px;border-top:1px solid var(--border);}
+.footer-copy{font-size:13px;color:var(--muted2);}
+@media(max-width:900px){.nav-links{display:none}.mobile-menu-btn{display:flex}.mobile-nav{display:flex}}
+@media(max-width:768px){
+.modal{padding:36px 28px;}
+h1{font-size:24px;}
+.footer-top{flex-direction:column;align-items:flex-start;}
+.footer-bottom{flex-direction:column;align-items:flex-start;}
+.code-input{width:45px;height:55px;font-size:1.5rem;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="nav-inner">
+<a href="/" class="nav-logo">
+<div class="nav-logo-mark">
+<img src="https://i.imgur.com/kj1LSyK.png" alt="wlc.lol" width="30" height="30"/>
+</div>
+<span class="nav-logo-text">wlc<span>.</span>lol</span>
+</a>
+<div class="nav-links">
+<a href="/">Home</a>
+<a href="/pricing">Pricing</a>
+<a href="/leaderboard">Leaderboard</a>
+<a href="/docs">Docs</a>
+</div>
+<div class="nav-actions">
+<button class="mobile-menu-btn" id="mobileBtn" onclick="toggleMenu()" aria-label="Toggle menu">
+<span></span>
+<span></span>
+<span></span>
+</button>
+<a href="/login"><button class="btn-primary">Sign In</button></a>
+</div>
+</div>
+</nav>
+
+<div class="mobile-nav" id="mobileNav">
+<a href="/">Home</a>
+<a href="/pricing">Pricing</a>
+<a href="/leaderboard">Leaderboard</a>
+<a href="/docs">Docs</a>
+<a href="/login" class="mobile-cta">Sign In</a>
+</div>
+
+<div class="register-wrapper">
+<div class="modal">
+<img src="https://i.imgur.com/kj1LSyK.png" alt="wlc.lol logo" class="logo">
+
+<div id="flash-container"></div>
+
+<div id="step-username">
+<h1>Create an account</h1>
+<p class="subtitle">Step 1: Choose a username</p>
+<div class="form-group">
+<label class="form-label">
+<span>USERNAME</span>
+<span class="char-count" id="charCount">0/20</span>
+</label>
+<input type="text" id="username" placeholder="johndoe" maxlength="20" required>
+<div class="validation-msg" id="username-msg"></div>
+</div>
+<button type="button" id="btn-to-email" class="btn-submit" disabled>
+<span>Next</span>
+</button>
+</div>
+
+<div id="step-details" class="hidden">
+<h1>Almost there!</h1>
+<p class="subtitle">Step 2: Set your email and password</p>
+<div class="form-group">
+<label class="form-label"><span>EMAIL</span></label>
+<input type="email" id="email" placeholder="name@example.com" required autocomplete="email">
+</div>
+<div class="form-group">
+<label class="form-label"><span>PASSWORD</span></label>
+<div class="input-wrapper">
+<input type="password" id="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required>
+<button type="button" class="toggle-password" id="togglePassword">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+</svg>
+</button>
+</div>
+<div class="validation-msg" id="password-msg"></div>
+</div>
+<div class="form-group">
+<label class="form-label"><span>CONFIRM PASSWORD</span></label>
+<div class="input-wrapper">
+<input type="password" id="password-confirm" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required>
+<button type="button" class="toggle-password" id="togglePasswordConfirm">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+</svg>
+</button>
+</div>
+<div class="validation-msg" id="password-confirm-msg"></div>
+</div>
+<button type="button" id="btn-create-account" class="btn-submit" disabled>
+<div class="spinner"></div>
+<span>Create Account</span>
+</button>
+</div>
+
+<p class="footer-text">
+Already have an account? <a href="/login">Sign in</a>
+</p>
+</div>
+</div>
+
+<footer>
+<div class="container">
+<div class="footer-inner">
+<div class="footer-top">
+<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+<div class="footer-logo">
+<div class="footer-logo-mark">
+<img src="https://i.imgur.com/kj1LSyK.png" alt="wlc.lol" width="26" height="26"/>
+</div>
+<span class="footer-logo-text" style="margin-left:8px">wlc<span>.</span>lol</span>
+</div>
+<a href="https://status.wlc.lol" target="_blank" rel="noopener noreferrer" class="footer-status">
+<div class="status-ping"><span></span><span></span></div>
+All systems online
+</a>
+</div>
+<div class="footer-links">
+<a href="/leaderboard">Leaderboard</a>
+<a href="/pricing">Pricing</a>
+<a href="/docs">Docs</a>
+<a href="/legal#terms">Terms</a>
+<a href="/legal#privacy">Privacy</a>
+<a href="https://discord.gg/wlclol" target="_blank" rel="noopener noreferrer">Discord</a>
+</div>
+</div>
+<div class="footer-bottom">
+<p class="footer-copy">&copy; 2026 WLC.LOL. All rights reserved.</p>
+<p class="footer-copy">Built for creators, Discord users, and internet expression.</p>
+</div>
+</div>
+</div>
+</footer>
+
+<script>
+function toggleMenu(){
+var nav=document.getElementById('mobileNav');
+var open=nav.classList.toggle('open');
+nav.style.display=open?'flex':'none';
+}
+function closeMenu(){
+var nav=document.getElementById('mobileNav');
+nav.classList.remove('open');
+nav.style.display='none';
+}
+document.addEventListener('click',function(e){
+var nav=document.getElementById('mobileNav');
+var btn=document.getElementById('mobileBtn');
+if(nav.classList.contains('open')&&!nav.contains(e.target)&&!btn.contains(e.target)){closeMenu();}
+});
+
+document.addEventListener('DOMContentLoaded',function(){
+  var userData = { username: '' };
+
+  var stepUsername = document.getElementById('step-username');
+  var stepDetails  = document.getElementById('step-details');
+
+  var inputUsername = document.getElementById('username');
+  var inputEmail    = document.getElementById('email');
+  var inputPassword = document.getElementById('password');
+  var inputConfirm  = document.getElementById('password-confirm');
+
+  var btnNext   = document.getElementById('btn-to-email');
+  var btnCreate = document.getElementById('btn-create-account');
+  var charCount = document.getElementById('charCount');
+  var usernameMsg = document.getElementById('username-msg');
+  var passwordMsg = document.getElementById('password-msg');
+  var passwordConfirmMsg = document.getElementById('password-confirm-msg');
+  var flash = document.getElementById('flash-container');
+
+  function showFlash(msg, type){
+    type = type || 'error';
+    var icon = type === 'success' ? '&#x2713;' : '&#x2715;';
+    var cls  = type === 'success' ? 'flash-success' : 'flash-error';
+    flash.innerHTML = '<div class="flash-msg '+cls+'"><span>'+icon+'</span><span>'+msg+'</span></div>';
+    setTimeout(function(){ flash.innerHTML=''; }, 5000);
+  }
+
+  function showStep(step){
+    stepUsername.classList.add('hidden');
+    stepDetails.classList.add('hidden');
+    if(step === 'username') stepUsername.classList.remove('hidden');
+    if(step === 'details')  stepDetails.classList.remove('hidden');
+  }
+
+  // ── Step 1: Username ──────────────────────────────────────────
+  inputUsername.addEventListener('input', function(){
+    var val = this.value.trim();
+    charCount.textContent = this.value.length + '/20';
+    var valid = val.length >= 3 && /^[a-zA-Z0-9_]+$/.test(val);
+    btnNext.disabled = !valid;
+    if(val.length > 0 && !valid){
+      usernameMsg.textContent = 'Only letters, numbers and underscore (_)';
+      usernameMsg.className = 'validation-msg error';
+    } else if(valid){
+      usernameMsg.textContent = 'Looks good!';
+      usernameMsg.className = 'validation-msg success';
+    } else {
+      usernameMsg.textContent = '';
+    }
+  });
+
+  btnNext.addEventListener('click', function(){
+    userData.username = inputUsername.value.trim();
+    showStep('details');
+    inputEmail.focus();
+  });
+
+  // ── Step 2: Email + Password ──────────────────────────────────
+  function validateDetails(){
+    var email = inputEmail.value.trim();
+    var pass  = inputPassword.value;
+    var conf  = inputConfirm.value;
+
+    if(pass.length > 0 && pass.length < 8){
+      passwordMsg.textContent = 'Password must be at least 8 characters';
+      passwordMsg.className = 'validation-msg error';
+    } else if(pass.length >= 8){
+      passwordMsg.textContent = 'Strong password ✓';
+      passwordMsg.className = 'validation-msg success';
+    } else {
+      passwordMsg.textContent = '';
+    }
+
+    if(conf.length > 0 && pass !== conf){
+      passwordConfirmMsg.textContent = 'Passwords do not match';
+      passwordConfirmMsg.className = 'validation-msg error';
+    } else if(conf.length > 0 && pass === conf){
+      passwordConfirmMsg.textContent = 'Passwords match ✓';
+      passwordConfirmMsg.className = 'validation-msg success';
+    } else {
+      passwordConfirmMsg.textContent = '';
+    }
+
+    var emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    btnCreate.disabled = !(emailValid && pass.length >= 8 && pass === conf);
+  }
+
+  inputEmail.addEventListener('input', validateDetails);
+  inputPassword.addEventListener('input', validateDetails);
+  inputConfirm.addEventListener('input', validateDetails);
+
+  document.getElementById('togglePassword').addEventListener('click', function(){
+    inputPassword.type = inputPassword.type === 'password' ? 'text' : 'password';
+  });
+  document.getElementById('togglePasswordConfirm').addEventListener('click', function(){
+    inputConfirm.type = inputConfirm.type === 'password' ? 'text' : 'password';
+  });
+
+  btnCreate.addEventListener('click', async function(){
+    btnCreate.classList.add('loading');
+    btnCreate.disabled = true;
+    try {
+      var res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: userData.username,
+          email: inputEmail.value.trim().toLowerCase(),
+          password: inputPassword.value,
+        })
+      });
+      var data = await res.json();
+      if(data.success){
+        showFlash('Account created! Redirecting...', 'success');
+        setTimeout(function(){ window.location.href = '/dashboard'; }, 1500);
+      } else {
+        showFlash(data.message || 'Something went wrong.');
+        btnCreate.disabled = false;
+      }
+    } catch(e){
+      showFlash('Connection error. Please try again.');
+      btnCreate.disabled = false;
+    } finally {
+      btnCreate.classList.remove('loading');
+    }
+  });
+
+  // ── Pre-fill username from URL param (coming from homepage) ───
+  var urlParams = new URLSearchParams(window.location.search);
+  var preUsername = urlParams.get('username');
+  if(preUsername && /^[a-zA-Z0-9_]{3,20}$/.test(preUsername)){
+    inputUsername.value = preUsername;
+    charCount.textContent = preUsername.length + '/20';
+    usernameMsg.textContent = 'Looks good!';
+    usernameMsg.className = 'validation-msg success';
+    btnNext.disabled = false;
+  }
+
+  showStep('username');
+});
+</script>
+</body>
+</html>

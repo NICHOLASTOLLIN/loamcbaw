@@ -1,0 +1,36 @@
+// firestore.rules
+// Deploy with: firebase deploy --only firestore:rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── users ────────────────────────────────────────────────────────────────
+    // Anyone can read public profiles, only the owner can write
+    match /users/{uid} {
+      allow read: if true;
+      // All writes go through the backend (Firebase Admin SDK bypasses rules)
+      allow write: if false;
+    }
+
+    // ── usernames (index) ────────────────────────────────────────────────────
+    // Public read for username availability check; writes via Admin only
+    match /usernames/{username} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ── pendingRegs ──────────────────────────────────────────────────────────
+    // No client access — managed entirely by the backend
+    match /pendingRegs/{email} {
+      allow read, write: if false;
+    }
+
+    // ── links ────────────────────────────────────────────────────────────────
+    // Anyone can read active links; writes via backend only
+    match /links/{linkId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

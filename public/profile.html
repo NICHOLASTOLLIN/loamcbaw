@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profile — wlc.lol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Oswald:wght@400;600;700&family=Playfair+Display:wght@400;700;900&family=Permanent+Marker&family=Pacifico&family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@400;600;700;800&family=Boogaloo&family=Lilita+One&family=Righteous&family=Press+Start+2P&family=VT323&family=Orbitron:wght@400;700;900&family=Bebas+Neue&family=Lobster&family=Satisfy&family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Special+Elite&family=Raleway:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100%;-webkit-font-smoothing:antialiased}
+body{background:#09080a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;position:relative;overflow-x:hidden;font-family:'Inter',sans-serif}
+
+/* ── Background ── */
+#pageBg{position:fixed;inset:0;z-index:0;background:#09080a;background-size:cover;background-position:center;background-repeat:no-repeat}
+#pageOverlay{position:fixed;inset:0;z-index:1;background:rgba(0,0,0,0.45)}
+
+/* ── Click to Enter ── */
+#cteScreen{
+  position:fixed;inset:0;z-index:100;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(9,8,10,0.70);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  gap:16px;cursor:pointer;
+  transition:opacity .5s ease;
+}
+#cteScreen.fade-out{opacity:0;pointer-events:none}
+#cteScreen.hidden{display:none}
+
+/* The CTE text — no box, just text */
+#cteBtn{
+  font-size:30px;font-weight:800;color:#fff;
+  letter-spacing:-0.02em;
+  user-select:none;
+  transition:transform .3s, opacity .3s;
+  pointer-events:none;
+  line-height:1.1;
+}
+#cteScreen:hover #cteBtn{opacity:0.75;transform:scale(1.04)}
+#cteSubtext{font-size:13px;color:rgba(255,255,255,0.35);pointer-events:none}
+
+/* CTE text effects */
+@keyframes cteRainbow{0%{color:#ff6a1a}14%{color:#ffb060}28%{color:#22c87a}42%{color:#3b82f6}57%{color:#8b5cf6}71%{color:#ec4899}85%{color:#f59e0b}100%{color:#ff6a1a}}
+@keyframes ctePulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes cteGlow{0%,100%{text-shadow:0 0 20px currentColor,0 0 40px currentColor}50%{text-shadow:0 0 5px currentColor}}
+@keyframes cteFontCycle{} /* handled via JS */
+.cte-effect-rainbow{animation:cteRainbow 2s linear infinite}
+.cte-effect-pulse{animation:ctePulse 1.8s ease-in-out infinite}
+.cte-effect-glow{animation:cteGlow 2s ease-in-out infinite}
+.cte-effect-gradient{
+  background-size:200% auto;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:gradShift 2s ease infinite;
+}
+
+/* ── Main content ── */
+#mainContent{
+  position:relative;z-index:10;width:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 16px;min-height:100vh;
+  opacity:0;transition:opacity .6s;gap:12px;
+}
+#mainContent.visible{opacity:1}
+
+/* ── Views widget ── */
+#viewsWidget{
+  position:absolute;top:14px;right:14px;z-index:20;
+  display:none;align-items:center;gap:5px;
+  background:rgba(0,0,0,0.5);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:999px;padding:5px 10px;
+  font-size:12px;font-weight:600;color:rgba(255,255,255,0.65);
+  cursor:default;transition:all .2s;
+}
+#viewsWidget:hover{background:rgba(0,0,0,0.75);color:#fff}
+#viewsWidget .tip{position:relative;display:flex;align-items:center;gap:5px}
+#viewsWidget .tip::after{
+  content:'Views';position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,0.9);color:#fff;font-size:11px;padding:4px 8px;border-radius:6px;
+  white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;font-family:'Inter',sans-serif;
+}
+#viewsWidget:hover .tip::after{opacity:1}
+
+/* ── Card wrap ── */
+#cardAnimWrap{width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
+
+/* ── Profile Card ── */
+.card{
+  background:rgba(17,16,19,0.9);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:24px;
+  width:100%;max-width:420px;
+  overflow:hidden;position:relative;
+  transition:transform .18s ease-out;
+}
+.card.square{border-radius:8px}
+.card.horizontal{max-width:660px}
+.card.tilt-active{will-change:transform}
+
+.card-bg-img{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;border-radius:inherit}
+.card-bg-img::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.38);border-radius:inherit}
+
+.card-body{padding:28px 28px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;z-index:1}
+.card.horizontal .card-body{flex-direction:row;align-items:flex-start;text-align:left;gap:22px;padding:28px}
+
+.pfp-wrap{position:relative;flex-shrink:0}
+.pfp{width:80px;height:80px;border-radius:50%;border:3px solid rgba(255,255,255,0.1);background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:rgba(255,255,255,0.4);overflow:hidden}
+.pfp img{width:100%;height:100%;object-fit:cover}
+.pfp.square-pfp{border-radius:12px}
+
+.info-block{display:flex;flex-direction:column;align-items:center;width:100%}
+.card.horizontal .info-block{align-items:flex-start;flex:1;min-width:0}
+
+/* Font inheritance — applied to card, inherited by all children */
+.display-name{font-size:20px;font-weight:800;letter-spacing:-0.02em;margin:14px 0 4px;line-height:1.2}
+.card.horizontal .display-name{margin-top:4px}
+.username-tag{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:8px}
+.bio{font-size:13.5px;color:rgba(255,255,255,0.6);line-height:1.6;max-width:320px}
+.card.horizontal .bio{max-width:none}
+
+.links-section{margin-top:14px;display:flex;flex-wrap:wrap;gap:7px;justify-content:center;width:100%}
+.card.horizontal .links-section{justify-content:flex-start}
+.link-item{display:flex;align-items:center;justify-content:center;width:38px;height:38px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:10px;text-decoration:none;color:#fff;transition:all .2s;cursor:pointer;flex-shrink:0;position:relative}
+.link-item:hover{background:rgba(255,255,255,0.13);border-color:rgba(255,255,255,0.2);transform:translateY(-2px)}
+.link-item svg{opacity:0.75;transition:opacity .2s}
+.link-item:hover svg{opacity:1}
+.link-item[data-title]:hover::after{content:attr(data-title);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;font-size:11px;font-weight:500;padding:4px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;font-family:'Inter',sans-serif;z-index:10}
+
+/* ── Name effects ── */
+@keyframes rainbow{0%{color:#ff6a1a}14%{color:#ffb060}28%{color:#22c87a}42%{color:#3b82f6}57%{color:#8b5cf6}71%{color:#ec4899}85%{color:#f59e0b}100%{color:#ff6a1a}}
+.name-rainbow{animation:rainbow 3s linear infinite}
+@keyframes gradShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.name-gradient{background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradShift 3s ease infinite}
+
+/* ── Entrance animations ── */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
+@keyframes slideIn{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounceIn{0%{opacity:0;transform:scale(0.3)}50%{transform:scale(1.06)}70%{transform:scale(0.95)}100%{opacity:1;transform:scale(1)}}
+.anim-fadein{animation:fadeIn .6s ease forwards}
+.anim-popin{animation:popIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+.anim-slidein{animation:slideIn .5s ease forwards}
+.anim-bouncein{animation:bounceIn .7s cubic-bezier(.36,.07,.19,.97) forwards}
+
+/* ── Music card ── */
+#musicCard{
+  width:100%;max-width:420px;
+  background:rgba(17,16,19,0.9);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;overflow:hidden;
+  display:none;
+  transition:transform .18s ease-out;
+}
+#musicCard.wide{max-width:660px}
+#musicCard.tilt-active{will-change:transform}
+
+.music-inner{display:flex;align-items:center;gap:14px;padding:14px 18px}
+.music-thumb{
+  width:54px;height:54px;border-radius:10px;
+  background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);
+  overflow:hidden;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.music-thumb img{width:100%;height:100%;object-fit:cover}
+.music-thumb svg{opacity:0.3}
+.music-meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+.music-title{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.music-timeline{display:flex;align-items:center;gap:8px}
+.timeline-bar{flex:1;height:12px;display:flex;align-items:center;cursor:pointer;position:relative}
+.timeline-track{height:3px;background:rgba(255,255,255,0.12);border-radius:999px;position:relative;width:100%}
+.timeline-fill{height:100%;background:rgba(249,115,22,0.9);border-radius:999px;width:0%;transition:width .25s linear}
+.timeline-time{font-size:10px;color:rgba(255,255,255,0.35);white-space:nowrap;font-variant-numeric:tabular-nums}
+.music-controls{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.music-btn{
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.12);
+  color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;flex-shrink:0;
+}
+.music-btn:hover{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.28)}
+.music-btn svg{opacity:0.85}
+
+/* ── Font families — applied at cardAnimWrap level so all children inherit ── */
+body, #musicCard, #musicCard *, #profileCard, #profileCard *,
+.music-title, .music-timeline, .timeline-time, .display-name,
+.username-tag, .bio, .profile-footer {font-family: inherit}
+
+#cardAnimWrap.pf-inter      , #cardAnimWrap.pf-inter       * {font-family:'Inter',sans-serif !important}
+#cardAnimWrap.pf-roboto     , #cardAnimWrap.pf-roboto      * {font-family:'Roboto',sans-serif !important}
+#cardAnimWrap.pf-oswald     , #cardAnimWrap.pf-oswald      * {font-family:'Oswald',sans-serif !important}
+#cardAnimWrap.pf-playfair   , #cardAnimWrap.pf-playfair    * {font-family:'Playfair Display',serif !important}
+#cardAnimWrap.pf-marker     , #cardAnimWrap.pf-marker      * {font-family:'Permanent Marker',cursive !important}
+#cardAnimWrap.pf-pacifico   , #cardAnimWrap.pf-pacifico    * {font-family:'Pacifico',cursive !important}
+#cardAnimWrap.pf-fredoka    , #cardAnimWrap.pf-fredoka     * {font-family:'Fredoka One',cursive !important}
+#cardAnimWrap.pf-nunito     , #cardAnimWrap.pf-nunito      * {font-family:'Nunito',sans-serif !important}
+#cardAnimWrap.pf-baloo      , #cardAnimWrap.pf-baloo       * {font-family:'Baloo 2',cursive !important}
+#cardAnimWrap.pf-boogaloo   , #cardAnimWrap.pf-boogaloo    * {font-family:'Boogaloo',cursive !important}
+#cardAnimWrap.pf-lilita     , #cardAnimWrap.pf-lilita      * {font-family:'Lilita One',cursive !important}
+#cardAnimWrap.pf-righteous  , #cardAnimWrap.pf-righteous   * {font-family:'Righteous',cursive !important}
+#cardAnimWrap.pf-minecraft  , #cardAnimWrap.pf-minecraft   * {font-family:'Press Start 2P',monospace !important}
+#cardAnimWrap.pf-vt323      , #cardAnimWrap.pf-vt323       * {font-family:'VT323',monospace !important}
+#cardAnimWrap.pf-orbitron   , #cardAnimWrap.pf-orbitron    * {font-family:'Orbitron',sans-serif !important}
+#cardAnimWrap.pf-bebas      , #cardAnimWrap.pf-bebas       * {font-family:'Bebas Neue',cursive !important}
+#cardAnimWrap.pf-lobster    , #cardAnimWrap.pf-lobster     * {font-family:'Lobster',cursive !important}
+#cardAnimWrap.pf-satisfy    , #cardAnimWrap.pf-satisfy     * {font-family:'Satisfy',cursive !important}
+#cardAnimWrap.pf-caveat     , #cardAnimWrap.pf-caveat      * {font-family:'Caveat',cursive !important}
+#cardAnimWrap.pf-dancing    , #cardAnimWrap.pf-dancing     * {font-family:'Dancing Script',cursive !important}
+#cardAnimWrap.pf-special    , #cardAnimWrap.pf-special     * {font-family:'Special Elite',cursive !important}
+#cardAnimWrap.pf-raleway    , #cardAnimWrap.pf-raleway     * {font-family:'Raleway',sans-serif !important}
+
+/* ── Badges ── */
+.badges-row{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:6px 0 2px}
+.card.horizontal .badges-row{justify-content:flex-start}
+.badge-icon{position:relative;width:22px;height:22px;cursor:default;flex-shrink:0}
+.badge-icon img{width:22px;height:22px;object-fit:contain;display:block;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5))}
+.badge-icon:hover .badge-tip{opacity:1;transform:translateX(-50%) translateY(-2px)}
+.badge-tip{position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%) translateY(0);background:rgba(10,9,12,0.95);border:1px solid rgba(255,255,255,0.12);color:#f5f0ee;font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s,transform .15s;z-index:50;font-family:'Inter',sans-serif;text-transform:capitalize}
+
+/* ── Display name row (name + badges inline) ── */
+.name-badges-wrap{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:center;margin:14px 0 4px}
+.card.horizontal .name-badges-wrap{justify-content:flex-start;margin-top:4px}
+.name-badges-wrap .display-name{margin:0}
+
+/* ── Blur fix: use isolation so backdrop-filter always works ── */
+#profileCard, #musicCard{isolation:isolate}
+
+/* ── Entrance animations must NOT remove will-change before blur settles ── */
+.anim-fadein,  .anim-popin, .anim-slidein, .anim-bouncein{
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+}
+
+/* ── Footer ── */
+.profile-footer{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:20;font-size:12px;color:rgba(255,255,255,0.25);text-decoration:none;letter-spacing:0.02em}
+.profile-footer span{color:rgba(249,115,22,0.7)}
+</style>
+</head>
+<body>
+
+<div id="pageBg"></div>
+<div id="pageOverlay"></div>
+
+<!-- Click to Enter -->
+<div id="cteScreen" class="hidden">
+  <div id="cteBtn">Click to Enter</div>
+  <div id="cteSubtext">click anywhere to continue</div>
+</div>
+
+<!-- Main content -->
+<div id="mainContent">
+  <div id="cardAnimWrap">
+
+    <!-- Profile card -->
+    <div id="profileCard" class="card" style="position:relative">
+      <div id="viewsWidget">
+        <div class="tip">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span id="viewsCount">0</span>
+        </div>
+      </div>
+      <div id="cardBgImg" class="card-bg-img" style="display:none"></div>
+      <div class="card-body" id="cardBody">
+        <div class="pfp-wrap">
+          <div class="pfp" id="pfpEl">?</div>
+        </div>
+        <div class="info-block">
+          <div class="name-badges-wrap">
+            <div class="display-name" id="displayNameEl">Loading…</div>
+            <div class="badges-row" id="badgesRow"></div>
+          </div>
+          <div class="username-tag" id="usernameTagEl">@…</div>
+          <div class="bio" id="bioEl"></div>
+          <div class="links-section" id="linksSection"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Music label card -->
+    <div id="musicCard">
+      <div class="music-inner">
+        <div class="music-thumb" id="musicThumb">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </div>
+        <div class="music-meta">
+          <div class="music-title" id="musicTitleEl">♪ Now Playing</div>
+          <div class="music-timeline">
+            <div class="timeline-bar" id="timelineBar">
+              <div class="timeline-track">
+                <div class="timeline-fill" id="timelineFill"></div>
+              </div>
+            </div>
+            <div class="timeline-time" id="timelineTime">0:00</div>
+          </div>
+        </div>
+        <div class="music-controls">
+          <button class="music-btn" id="btnPlayPause" title="Play / Pause">
+            <svg id="playIcon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+            <svg id="pauseIcon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<a href="/" class="profile-footer">powered by wlc<span>.lol</span></a>
+<audio id="bgAudio"></audio>
+
+<script>
+'use strict';
+const pathParts = window.location.pathname.split('/').filter(Boolean);
+const username  = pathParts[0];
+if (!username) window.location.href = '/';
+
+let layoutSettings = {};
+let audioEl        = document.getElementById('bgAudio');
+let isPlaying      = false;
+
+// ── Font cycling state ──────────────────────────────────────────────────────
+const CTE_FONTS = [
+  'Inter','Pacifico','Orbitron','Fredoka One','Press Start 2P',
+  'Bebas Neue','Nunito','Lilita One','Dancing Script','Righteous'
+];
+let fontCycleTimer = null;
+let fontCycleIdx   = 0;
+
+// ── Init ────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const res  = await fetch('/api/profile/' + username);
+    const data = await res.json();
+    if (!data.success) {
+      document.getElementById('displayNameEl').textContent = 'Profile not found';
+      document.getElementById('usernameTagEl').textContent = '';
+      document.getElementById('mainContent').classList.add('visible');
+      return;
+    }
+    const { profile, links } = data;
+    layoutSettings = profile.layoutSettings || {};
+    renderProfile(profile, links);
+    applyLayoutSettings(layoutSettings, profile);
+    handleCTE(layoutSettings);
+    trackView();
+  } catch(e) {
+    document.getElementById('displayNameEl').textContent = 'Error loading profile';
+    document.getElementById('mainContent').classList.add('visible');
+  }
+}
+
+// ── Render ──────────────────────────────────────────────────────────────────
+function renderProfile(p, links) {
+  document.title = (p.displayName || p.username) + ' — wlc.lol';
+
+  if (p.bgUrl) document.getElementById('pageBg').style.backgroundImage = `url('${p.bgUrl}')`;
+
+  const pfp = document.getElementById('pfpEl');
+  if (p.avatarUrl) {
+    pfp.innerHTML = `<img src="${p.avatarUrl}" onerror="this.parentElement.textContent='?'">`;
+  } else {
+    pfp.textContent = (p.username || '?')[0].toUpperCase();
+  }
+
+  const nameEl = document.getElementById('displayNameEl');
+  nameEl.textContent = p.displayName || p.username;
+  applyNameEffect(nameEl, p);
+
+  document.getElementById('usernameTagEl').textContent = '@' + p.username;
+  document.getElementById('bioEl').textContent = p.bio || '';
+
+  // Links
+  const linksSection = document.getElementById('linksSection');
+  if (links && links.length) {
+    linksSection.innerHTML = links.map(l => {
+      const iconContent = l.iconUrl
+        ? `<img src="${escHtml(l.iconUrl)}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;" onerror="this.style.display='none'">`
+        : getLinkIconSvg(l.icon);
+      return `<a class="link-item" href="${escHtml(l.url)}" target="_blank" rel="noopener noreferrer" data-id="${l.id}" data-title="${escHtml(l.title)}">
+        ${iconContent}
+      </a>`;
+    }).join('');
+    // Attach click tracking via addEventListener (no onclick attr = no CSP issue)
+    linksSection.querySelectorAll('.link-item[data-id]').forEach(a => {
+      a.addEventListener('click', () => trackClick(a.dataset.id));
+    });
+  } else {
+    linksSection.innerHTML = '';
+  }
+
+  // Apply font — apply to cardAnimWrap so it survives animation class swaps
+  const font = p.profileFont || 'inter';
+  const animWrap = document.getElementById('cardAnimWrap');
+  // Always set the class; inter is the default but explicit is safer
+  animWrap.classList.remove(...[...animWrap.classList].filter(c => c.startsWith('pf-')));
+  animWrap.classList.add('pf-' + font);
+
+  // Render badges
+  const badgesRow = document.getElementById('badgesRow');
+  const activeBadges = Array.isArray(p.activeBadges) ? p.activeBadges : [];
+  if (activeBadges.length) {
+    const BADGE_LABELS = {
+      booster:'Booster', 'bug hunter':'Bug Hunter', creator:'Creator',
+      famous:'Famous', friend:'Friend', gifter:'Gifter', og:'OG',
+      owner:'Owner', premium:'Premium', staff:'Staff', verified:'Verified'
+    };
+    badgesRow.innerHTML = activeBadges.map(b => {
+      const label = BADGE_LABELS[b] || b;
+      const file  = encodeURIComponent(b) + '.png';
+      return `<span class="badge-icon"><img src="/assets/${file}" alt="${escHtml(label)}" onerror="this.parentElement.style.display='none'"><span class="badge-tip">${escHtml(label)}</span></span>`;
+    }).join('');
+  }
+}
+
+function applyNameEffect(el, p) {
+  const effect = p.nameEffect || 'none';
+  if (effect === 'typewriter') {
+    const text  = p.displayName || p.username;
+    const speed = p.twSpeed || 80;
+    el.textContent = '';
+    let i = 0;
+    const type = () => {
+      if (i < text.length) { el.textContent += text[i++]; setTimeout(type, speed); }
+      else { setTimeout(() => { el.textContent = ''; i = 0; type(); }, 1800); }
+    };
+    type();
+  } else if (effect === 'rainbow') {
+    el.classList.add('name-rainbow');
+  } else if (effect === 'gradient') {
+    const c1 = p.gradColor1 || '#ff6a1a';
+    const c2 = p.gradColor2 || '#ffb060';
+    el.classList.add('name-gradient');
+    el.style.backgroundImage = `linear-gradient(90deg,${c1},${c2},${c1})`;
+  }
+}
+
+// ── Layout settings ─────────────────────────────────────────────────────────
+function applyLayoutSettings(s, profile) {
+  const card  = document.getElementById('profileCard');
+  const pfp   = document.getElementById('pfpEl');
+  const wrap  = document.getElementById('cardAnimWrap');
+  const mCard = document.getElementById('musicCard');
+
+  // Shape / orientation
+  if (s.cardShape === 'square') card.classList.add('square');
+  if (s.cardOrientation === 'horizontal') {
+    card.classList.add('horizontal');
+    mCard.classList.add('wide');
+    wrap.style.maxWidth = '660px';
+    wrap.style.width    = '100%';
+  }
+  if (s.pfpShape === 'square') pfp.classList.add('square-pfp');
+
+  // Color / opacity
+  const color   = s.cardColor || '#111013';
+  const opacity = (s.cardOpacity !== undefined ? s.cardOpacity : 90) / 100;
+  const r = parseInt(color.slice(1,3),16);
+  const g = parseInt(color.slice(3,5),16);
+  const b = parseInt(color.slice(5,7),16);
+  const rgba = `rgba(${r},${g},${b},${opacity})`;
+  card.style.background  = rgba;
+  mCard.style.background = rgba;
+
+  // Blur / glassmorphism
+  if (s.blurEffect) {
+    const blur = s.blurIntensity || 12;
+    const glassRgba = `rgba(${r},${g},${b},${opacity * 0.7})`;
+    [card, mCard].forEach(el => {
+      el.style.backdropFilter       = `blur(${blur}px)`;
+      el.style.webkitBackdropFilter = `blur(${blur}px)`;
+      el.style.background           = glassRgba;
+    });
+  }
+
+  // Card bg image
+  if (s.cardBgEnabled && s.cardBgUrl) {
+    const bg = document.getElementById('cardBgImg');
+    bg.style.display         = 'block';
+    bg.style.backgroundImage = `url('${s.cardBgUrl}')`;
+  }
+
+  // Views widget
+  if (s.showViews) {
+    document.getElementById('viewsWidget').style.display = 'flex';
+  }
+
+  // Music label card
+  if (s.cteMusicUrl && s.showMusicLabel) {
+    mCard.style.display = 'block';
+    if (s.musicTitle) {
+      document.getElementById('musicTitleEl').textContent = '♪ ' + s.musicTitle;
+    }
+    if (s.musicThumbnailUrl) {
+      document.getElementById('musicThumb').innerHTML =
+        `<img src="${escHtml(s.musicThumbnailUrl)}" onerror="this.parentElement.innerHTML='<svg width=22 height=22 viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.8\\'><path d=\\'M9 18V5l12-2v13\\'/><circle cx=\\'6\\' cy=\\'18\\' r=\\'3\\'/><circle cx=\\'18\\' cy=\\'16\\' r=\\'3\\'/></svg>'">`;
+    }
+    setupAudioTimeline();
+    if (s.musicTimelineColor) {
+      document.getElementById('timelineFill').style.background = s.musicTimelineColor;
+    }
+  }
+
+  // Tilt — wrap both cards in a single transform so they stay anchored at a fixed gap
+  if (s.tiltEffect) {
+    card.classList.add('tilt-active');
+    mCard.classList.add('tilt-active');
+
+    // Create a tilt-wrapper that holds both elements; we transform the wrapper
+    const tiltWrap = document.createElement('div');
+    tiltWrap.id = 'tiltWrap';
+    tiltWrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;transform-style:preserve-3d;transition:transform .05s ease-out;';
+
+    // Move card and mCard into tiltWrap (inside cardAnimWrap)
+    const parent = card.parentNode;
+    parent.insertBefore(tiltWrap, card);
+    tiltWrap.appendChild(card);
+    if (mCard.style.display !== 'none') tiltWrap.appendChild(mCard);
+
+    wrap.addEventListener('mousemove', e => {
+      const wrect = tiltWrap.getBoundingClientRect();
+      const dx = (e.clientX - (wrect.left + wrect.width  / 2)) / (wrect.width  / 2);
+      const dy = (e.clientY - (wrect.top  + wrect.height / 2)) / (wrect.height / 2);
+      tiltWrap.style.transition = 'transform .05s ease-out';
+      tiltWrap.style.transform  = `perspective(900px) rotateY(${dx * 10}deg) rotateX(${-dy * 10}deg)`;
+    });
+
+    wrap.addEventListener('mouseleave', () => {
+      tiltWrap.style.transition = 'transform .45s ease-out';
+      tiltWrap.style.transform  = '';
+      setTimeout(() => { tiltWrap.style.transition = 'transform .05s ease-out'; }, 460);
+    });
+  }
+}
+
+// ── CTE ─────────────────────────────────────────────────────────────────────
+function handleCTE(s) {
+  const cteScreen = document.getElementById('cteScreen');
+  if (s.cteEnabled) {
+    // Set text
+    document.getElementById('cteBtn').textContent = s.cteText || 'Click to Enter';
+    // Apply CTE text color
+    if (s.cteColor) document.getElementById('cteBtn').style.color = s.cteColor;
+    // Apply CTE text effect
+    applyCteEffect(s.cteEffect || 'none', s);
+    // Show CTE — profile is rendered behind it (visible through the blur)
+    document.getElementById('mainContent').classList.add('visible');
+    cteScreen.classList.remove('hidden');
+    // Click listener — no inline onclick
+    cteScreen.addEventListener('click', enterProfile, { once: true });
+  } else {
+    showMain(s);
+    if (s.cteMusicUrl) startMusic(s.cteMusicUrl);
+  }
+}
+
+function applyCteEffect(effect, s) {
+  const btn = document.getElementById('cteBtn');
+  btn.className = ''; // clear prev effects
+
+  if (effect === 'rainbow') {
+    btn.classList.add('cte-effect-rainbow');
+  } else if (effect === 'pulse') {
+    btn.classList.add('cte-effect-pulse');
+  } else if (effect === 'glow') {
+    if (s.cteColor) btn.style.color = s.cteColor;
+    btn.classList.add('cte-effect-glow');
+  } else if (effect === 'gradient') {
+    const c1 = s.cteGradColor1 || '#ff6a1a';
+    const c2 = s.cteGradColor2 || '#ffb060';
+    btn.style.backgroundImage = `linear-gradient(90deg,${c1},${c2},${c1})`;
+    btn.style.backgroundSize  = '200% auto';
+    btn.style.webkitBackgroundClip = 'text';
+    btn.style.backgroundClip = 'text';
+    btn.style.webkitTextFillColor = 'transparent';
+    btn.classList.add('cte-effect-gradient');
+  } else if (effect === 'fontcycle') {
+    // Cycle through fonts every 300ms
+    fontCycleTimer = setInterval(() => {
+      btn.style.fontFamily = CTE_FONTS[fontCycleIdx % CTE_FONTS.length];
+      fontCycleIdx++;
+    }, 320);
+  }
+}
+
+function enterProfile() {
+  if (fontCycleTimer) clearInterval(fontCycleTimer);
+  const s = layoutSettings;
+  if (s.cteMusicUrl) startMusic(s.cteMusicUrl);
+  const cteScreen = document.getElementById('cteScreen');
+  cteScreen.classList.add('fade-out');
+  setTimeout(() => {
+    cteScreen.classList.add('hidden');
+    cteScreen.classList.remove('fade-out');
+    showMain(s);
+  }, 500);
+}
+
+function showMain(s) {
+  document.getElementById('mainContent').classList.add('visible');
+  const wrap    = document.getElementById('cardAnimWrap');
+  const animMap = { fadein:'anim-fadein', popin:'anim-popin', slidein:'anim-slidein', bouncein:'anim-bouncein' };
+  const animCls = animMap[(s || layoutSettings).cardAnimation];
+  if (animCls) {
+    wrap.classList.add(animCls);
+    wrap.addEventListener('animationend', () => {
+      wrap.style.opacity = '1';
+      // Re-apply blur after animation ends — animation can interrupt backdrop-filter
+      const ls = s || layoutSettings;
+      if (ls.blurEffect) {
+        const card  = document.getElementById('profileCard');
+        const mCard = document.getElementById('musicCard');
+        const blur  = ls.blurIntensity || 12;
+        [card, mCard].forEach(el => {
+          el.style.backdropFilter       = `blur(${blur}px)`;
+          el.style.webkitBackdropFilter = `blur(${blur}px)`;
+        });
+      }
+    }, { once: true });
+  }
+}
+
+// ── Audio ────────────────────────────────────────────────────────────────────
+function startMusic(url) {
+  audioEl.src    = url;
+  audioEl.loop   = true;
+  audioEl.volume = 0.5;
+  audioEl.play().then(() => { isPlaying = true; updatePPIcon(); }).catch(() => {});
+}
+
+function togglePlayPause() {
+  if (!audioEl.src) return;
+  if (audioEl.paused) { audioEl.play(); isPlaying = true; }
+  else                { audioEl.pause(); isPlaying = false; }
+  updatePPIcon();
+}
+
+function updatePPIcon() {
+  document.getElementById('playIcon').style.display  = isPlaying ? 'none'  : 'block';
+  document.getElementById('pauseIcon').style.display = isPlaying ? 'block' : 'none';
+}
+
+function setupAudioTimeline() {
+  // Play/pause button — addEventListener, no onclick attr
+  document.getElementById('btnPlayPause').addEventListener('click', togglePlayPause);
+
+  // Timeline click to seek
+  document.getElementById('timelineBar').addEventListener('click', e => {
+    if (!audioEl.duration) return;
+    const bar  = document.getElementById('timelineBar');
+    const rect = bar.getBoundingClientRect();
+    const pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audioEl.currentTime = pct * audioEl.duration;
+  });
+
+  audioEl.addEventListener('timeupdate', () => {
+    if (!audioEl.duration) return;
+    const pct = (audioEl.currentTime / audioEl.duration) * 100;
+    document.getElementById('timelineFill').style.width = pct + '%';
+    document.getElementById('timelineTime').textContent = fmt(audioEl.currentTime);
+  });
+  audioEl.addEventListener('play',  () => { isPlaying = true;  updatePPIcon(); });
+  audioEl.addEventListener('pause', () => { isPlaying = false; updatePPIcon(); });
+}
+
+function fmt(s) {
+  return Math.floor(s / 60) + ':' + Math.floor(s % 60).toString().padStart(2, '0');
+}
+
+// ── Views ────────────────────────────────────────────────────────────────────
+async function trackView() {
+  try {
+    const key = 'wlc-view-' + username;
+    if (!localStorage.getItem(key)) {
+      await fetch('/api/profile/' + username + '/view', { method: 'POST' });
+      localStorage.setItem(key, '1');
+    }
+    const res  = await fetch('/api/profile/' + username + '/views');
+    const data = await res.json();
+    if (data.views !== undefined) {
+      document.getElementById('viewsCount').textContent = data.views;
+    }
+  } catch(e) {}
+}
+
+// ── Tracking ─────────────────────────────────────────────────────────────────
+async function trackClick(id) {
+  try { await fetch('/api/links/' + id + '/click', { method: 'POST' }); } catch(e) {}
+}
+
+// ── Icons ─────────────────────────────────────────────────────────────────────
+function getLinkIconSvg(icon) {
+  const s = 'width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
+  const m = {
+    roblox:    `<svg ${s}><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="3"/></svg>`,
+    spotify:   `<svg ${s}><circle cx="12" cy="12" r="10"/><path d="M8 13.5c2.5-1 5.5-1 8 0"/><path d="M7 10.5c3-1.3 6.5-1.3 9.5 0"/><path d="M9 16.5c2-.7 4-.7 6 0"/></svg>`,
+    youtube:   `<svg ${s}><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>`,
+    twitch:    `<svg ${s}><path d="M21 2H3v16h5v4l4-4h5l4-4V2zm-10 9V7m5 4V7"/></svg>`,
+    instagram: `<svg ${s}><rect width="20" height="20" x="2" y="2" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>`,
+    tiktok:    `<svg ${s}><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>`,
+    twitter:   `<svg ${s}><path d="M4 4l16 16M4 20L20 4"/></svg>`,
+    discord:   `<svg ${s}><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8.5 17s1 1 3.5 1 3.5-1 3.5-1"/><path d="M15.5 6.5S19 7 20 10c0 0 1 3-1 6 0 0-1.5 1.5-3 1.5l-1-2s1.5-.5 2-1.5"/><path d="M8.5 6.5S5 7 4 10c0 0-1 3 1 6 0 0 1.5 1.5 3 1.5l1-2s-1.5-.5-2-1.5"/></svg>`,
+    github:    `<svg ${s}><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>`,
+    snapchat:  `<svg ${s}><path d="M12 2C8 2 6 5 6 8v2c-.5 0-2 .5-2 1.5S5 13 6 13c.5 2 2 3.5 3 4-.5.5-2 1-4 1.5 1 1 3.5 1.5 7 1.5s6-.5 7-1.5c-2-.5-3.5-1-4-1.5 1-.5 2.5-2 3-4 1 0 2-.5 2-1.5s-1.5-1.5-2-1.5V8c0-3-2-6-6-6z"/></svg>`,
+    kick:      `<svg ${s}><polyline points="6 4 6 20"/><polyline points="6 12 14 4"/><polyline points="6 12 16 20"/></svg>`,
+  };
+  return m[icon] || `<svg ${s}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+init();
+</script>
+</body>
+</html>

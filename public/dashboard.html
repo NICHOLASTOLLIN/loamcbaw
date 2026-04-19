@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>wlc.lol - dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Orbitron:wght@400;700;900&family=Bebas+Neue&family=Fredoka+One&family=Nunito:wght@400;700;900&family=Baloo+2:wght@400;700&family=Boogaloo&family=Lilita+One&family=Righteous&family=Pacifico&family=Lobster&family=Satisfy&family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Special+Elite&family=Permanent+Marker&family=Playfair+Display:wght@400;700&family=Raleway:wght@400;600;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Inter',sans-serif;overflow:hidden}
+input,select,textarea,button{font-family:'Inter',sans-serif}
+[data-theme="dark"]{--bg:#0a0a0a;--bg2:#0b0b0b;--bg3:#121212;--bg4:#1a1a1a;--bg5:#212121;--border:rgba(95,95,95,0.08);--border2:rgba(95,95,95,0.18);--text:#fff;--text2:#e4e4e7;--text3:#a1a1aa;--text4:#71717a;--text5:#52525b;background:#0a0a0a;color:#fff}
+[data-theme="light"]{--bg:#f4f4f5;--bg2:#fafafa;--bg3:#fff;--bg4:#f0f0f0;--bg5:#e4e4e7;--border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.13);--text:#09090b;--text2:#18181b;--text3:#52525b;--text4:#71717a;--text5:#a1a1aa;background:#f4f4f5;color:#09090b}
+:root{--orange:#f97316;--orange-light:rgba(249,115,22,0.15);--orange-border:rgba(249,115,22,0.5);--success:#22c55e;--danger:#ef4444}
+.layout{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:252px;background:var(--bg);padding:20px;display:flex;flex-direction:column;flex-shrink:0;border-right:1px solid var(--border)}
+.logo-row{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.logo-img{width:30px;height:30px;object-fit:contain;border-radius:6px}
+.logo-text{font-size:18px;font-weight:700;letter-spacing:-0.02em;color:var(--text)}
+.logo-text .dot{color:var(--orange)}
+.nav-scroll{flex:1;overflow-y:auto;scrollbar-width:none}
+.nav-scroll::-webkit-scrollbar{display:none}
+.nav-label{font-size:10px;font-weight:600;color:var(--text5);padding:8px 12px 4px;text-transform:uppercase;letter-spacing:0.08em}
+.nav-item{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--text3);transition:all .2s;text-decoration:none;border:none;background:none;width:100%;text-align:left;font-family:'Inter',sans-serif}
+.nav-item:hover{background:var(--bg4);color:var(--text)}
+.nav-item.active{background:var(--orange-light);color:var(--orange)}
+.nav-item svg{flex-shrink:0}
+.nav-section{margin-top:10px}
+.sidebar-bottom{margin-top:auto;padding-top:12px}
+.user-card{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:10px 12px}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--bg4);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--orange);flex-shrink:0;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-handle{font-size:11px;color:var(--text4)}
+.logout-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:7px;cursor:pointer;color:var(--text4);background:none;border:none;transition:all .2s;flex-shrink:0}
+.logout-btn:hover{color:var(--danger);background:rgba(239,68,68,0.1)}
+.main{flex:1;height:100vh;padding:10px 10px 10px 0;overflow:hidden;display:flex;flex-direction:column}
+.main-inner{height:100%;display:flex;flex-direction:column;border-radius:14px;border:1px solid var(--border);background:var(--bg2);overflow:hidden}
+.topbar{background:var(--bg);border-bottom:1px solid var(--border);height:58px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.breadcrumb{font-size:13px;font-weight:600;color:var(--text2)}
+.breadcrumb .sep{color:var(--text5);margin:0 5px}
+.topbar-actions{display:flex;align-items:center;gap:8px}
+.view-btn{background:var(--orange);color:#fff;font-weight:600;border:none;border-radius:999px;padding:0 14px;height:32px;cursor:pointer;font-size:12px;transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:5px;font-family:'Inter',sans-serif}
+.view-btn:hover{background:#ea6c0a}
+.theme-btn{width:32px;height:32px;border-radius:9px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.theme-btn:hover{color:var(--text);background:var(--bg4)}
+.content{flex:1;overflow-y:auto;padding:24px;scrollbar-width:thin;scrollbar-color:var(--bg4) transparent}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px}
+.page{display:none}
+.page.active{display:block}
+.page-title{font-size:21px;font-weight:700;color:var(--text);margin-bottom:3px}
+.page-sub{font-size:13px;color:var(--text4);margin-bottom:20px}
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:14px}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:600;color:var(--text)}
+.card-sub{font-size:12px;color:var(--text4);margin-top:2px}
+.card-body{padding:16px 20px}
+.form-group{margin-bottom:15px}
+.form-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text4);margin-bottom:7px;display:flex;align-items:center;justify-content:space-between}
+.form-input{width:100%;padding:9px 12px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--orange)}
+.form-input::placeholder{color:var(--text5)}
+.form-input:disabled{opacity:.5;cursor:not-allowed}
+.form-hint{font-size:11px;color:var(--text4);margin-top:5px}
+.form-select{width:100%;padding:9px 12px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.form-select:focus{border-color:var(--orange)}
+.btn{padding:0 16px;height:36px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif}
+.btn-orange{background:var(--orange);color:#fff}
+.btn-orange:hover{background:#ea6c0a}
+.btn-ghost{background:var(--bg4);color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--bg5);color:var(--text)}
+.btn-danger{background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25)}
+.btn-danger:hover{background:rgba(239,68,68,0.22)}
+.toggle-wrap{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+.toggle-label{font-size:13.5px;font-weight:500;color:var(--text2)}
+.toggle-sub{font-size:11.5px;color:var(--text4);margin-top:2px}
+.toggle{position:relative;width:42px;height:23px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--bg5);border-radius:999px;cursor:pointer;transition:.25s;border:1px solid var(--border2)}
+.toggle-slider:before{content:'';position:absolute;width:17px;height:17px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.25s}
+.toggle input:checked+.toggle-slider{background:var(--orange);border-color:var(--orange)}
+.toggle input:checked+.toggle-slider:before{transform:translateX(19px)}
+.coming-soon-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;text-align:center;gap:14px}
+.coming-soon-icon{width:68px;height:68px;border-radius:18px;background:var(--orange-light);border:1px solid var(--orange-border);display:flex;align-items:center;justify-content:center}
+.coming-soon-title{font-size:21px;font-weight:700;color:var(--text)}
+.coming-soon-badge{background:var(--orange-light);color:var(--orange);border:1px solid var(--orange-border);border-radius:999px;padding:4px 14px;font-size:12px;font-weight:600}
+.coming-soon-sub{font-size:13px;color:var(--text4);max-width:300px;line-height:1.6}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:14px}
+.stat-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text4);margin-bottom:5px}
+.stat-value{font-size:20px;font-weight:700;color:var(--text)}
+.stat-sub{font-size:11px;color:var(--text5);margin-top:2px}
+.promo-card{background:radial-gradient(circle at top,rgba(249,115,22,0.1),transparent 50%),var(--bg3);border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:16px;position:relative;overflow:hidden}
+.promo-line{height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,0.6),transparent);position:absolute;top:0;left:0;right:0}
+.promo-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:7px;display:flex;align-items:center;gap:8px}
+.promo-sub{font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:14px}
+.link-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.link-item{display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg4);border:1px solid var(--border);border-radius:12px}
+.link-icon{width:36px;height:36px;border-radius:9px;background:var(--bg5);display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.8}
+.link-info{flex:1;min-width:0}
+.link-name{font-size:13px;font-weight:600;color:var(--text)}
+.link-url{font-size:11px;color:var(--text4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.link-status{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.link-status.on{background:#22c55e}
+.link-status.off{background:var(--text5)}
+.link-btn{width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.link-btn-del{background:rgba(239,68,68,0.08);color:#ef4444}
+.link-btn-del:hover{background:rgba(239,68,68,0.18)}
+.link-btn-edit{background:var(--bg5);color:var(--text3)}
+.link-btn-edit:hover{background:var(--border2);color:var(--text)}
+.platform-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.platform-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px;background:var(--bg4);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .2s;font-size:11px;font-weight:500;color:var(--text3);font-family:'Inter',sans-serif}
+.platform-btn:hover{border-color:var(--orange);color:var(--text);background:var(--bg5)}
+.platform-btn .p-icon{display:flex;align-items:center;justify-content:center;width:22px;height:22px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--bg3);border:1px solid var(--border2);border-radius:18px;padding:24px;width:100%;max-width:400px;position:relative}
+.modal-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:5px}
+.modal-sub{font-size:12px;color:var(--text4);margin-bottom:18px}
+.modal-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:7px;border:none;background:var(--bg4);color:var(--text3);cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--bg5);color:var(--text)}
+.sub-tabs{display:flex;gap:3px;margin-bottom:20px;background:var(--bg4);padding:4px;border-radius:11px;flex-wrap:wrap}
+.sub-tab{padding:7px 14px;border-radius:8px;font-size:12.5px;font-weight:500;color:var(--text4);cursor:pointer;transition:all .2s;border:none;background:none;font-family:'Inter',sans-serif}
+.sub-tab:hover{color:var(--text)}
+.sub-tab.active{background:var(--bg3);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.25)}
+.sub-page{display:none}
+.sub-page.active{display:block}
+.cte-preview{background:var(--bg4);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;margin-bottom:14px}
+.cte-preview-text{font-size:17px;font-weight:700;color:var(--text)}
+.avatar-upload{display:flex;align-items:center;gap:14px;padding:14px;background:var(--bg4);border-radius:12px;margin-bottom:16px}
+.avatar-preview{width:60px;height:60px;border-radius:50%;background:var(--bg5);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--orange);overflow:hidden;flex-shrink:0}
+.avatar-preview img{width:100%;height:100%;object-fit:cover}
+.flash-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+.flash-msg{padding:11px 16px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;animation:slideUp .25s ease;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.flash-success{background:#14532d;border:1px solid #22c55e;color:#86efac}
+.flash-error{background:#450a0a;border:1px solid #ef4444;color:#fca5a5}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:900px){.sidebar{display:none}.main{padding:8px}.stats-grid{grid-template-columns:repeat(2,1fr)}.platform-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="logo-row">
+    <img class="logo-img" src="https://i.imgur.com/kj1LSyK.png" alt="WLC">
+    <div class="logo-text">WLC<span class="dot">.</span>LOL</div>
+  </div>
+  <div class="nav-scroll">
+    <div class="nav-label">Main</div>
+    <button class="nav-item active" data-page="overview">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>Overview
+    </button>
+    <div class="nav-section">
+      <div class="nav-label">Customize</div>
+      <button class="nav-item" data-page="profile">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>Profile
+      </button>
+      <button class="nav-item" data-page="links">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Links
+      </button>
+      <button class="nav-item" data-page="layouts">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Layouts
+      </button>
+      <button class="nav-item" data-page="badges">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>Badges
+      </button>
+      <button class="nav-item" data-page="premium">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Premium
+      </button>
+      <button class="nav-item" data-page="imagehosting">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>Image Hosting
+      </button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Account</div>
+      <button class="nav-item" data-page="notifications" id="notifNavBtn" style="position:relative">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>Notifications
+        <span id="notifBadge" style="display:none;position:absolute;top:6px;right:8px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:999px;display:none;align-items:center;justify-content:center;padding:0 4px;line-height:1">0</span>
+      </button>
+      <button class="nav-item" data-page="support">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Support
+      </button>
+      <button class="nav-item" data-page="settings">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Settings
+      </button>
+    </div>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="avatar" id="sidebarAvatar">?</div>
+      <div class="user-info">
+        <div class="user-name" id="sidebarName">Loading…</div>
+        <div class="user-handle" id="sidebarHandle">@…</div>
+      </div>
+      <button class="logout-btn" id="logoutBtn" title="Logout">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="main-inner">
+    <div class="topbar">
+      <div class="breadcrumb" id="breadcrumb">Dashboard <span class="sep">›</span> Overview</div>
+      <div class="topbar-actions">
+        <button class="theme-btn" id="themeBtn" title="Toggle theme">
+          <svg id="themeMoonIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          <svg id="themeSunIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        </button>
+        <a class="view-btn" id="viewProfileBtn" href="#" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          View Profile
+        </a>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- OVERVIEW -->
+      <div class="page active" id="page-overview">
+        <div class="page-title" id="overviewTitle">Welcome back</div>
+        <div class="page-sub">Here's what's happening with your profile.</div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-label">User ID</div><div class="stat-value" id="statUid" style="font-size:11px;word-break:break-all;font-family:monospace">—</div></div>
+          <div class="stat-card"><div class="stat-label">Username</div><div class="stat-value" id="statUsername">—</div></div>
+          <div class="stat-card"><div class="stat-label">Profile Views</div><div class="stat-value">0</div><div class="stat-sub">Last 7 days</div></div>
+          <div class="stat-card"><div class="stat-label">Link Clicks</div><div class="stat-value">0</div><div class="stat-sub">Last 7 days</div></div>
+        </div>
+        <div class="promo-card">
+          <div class="promo-line"></div>
+          <div class="promo-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Your profile is live!
+          </div>
+          <div class="promo-sub">Customize your page, add your links, and share your URL with everyone.</div>
+          <button class="btn btn-orange" id="btnGoProfile">Customize Profile →</button>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="page" id="page-profile">
+        <div class="page-title">Profile</div>
+        <div class="page-sub">Manage your public profile information and appearance.</div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Avatar & Background</div></div></div>
+          <div class="card-body">
+            <div class="avatar-upload">
+              <div class="avatar-preview" id="avatarPreview">?</div>
+              <div style="flex:1">
+                <div class="form-label" style="margin-bottom:6px">Avatar URL</div>
+                <div style="display:flex;gap:7px">
+                  <input class="form-input" id="avatarUrl" placeholder="https://i.imgur.com/..." style="flex:1">
+                  <button class="btn btn-ghost" id="btnPreviewAvatar">Preview</button>
+                </div>
+                <div class="form-hint">Paste a direct image URL</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="form-label">Background Image URL</div>
+              <input class="form-input" id="bgUrl" placeholder="https://... (optional)">
+              <div class="form-hint">Background shown on your profile page</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Display Name &amp; Bio</div></div>
+          <div class="card-body">
+            <div class="form-group">
+              <div class="form-label">Display Name <span style="color:var(--text5);font-weight:400;text-transform:none;letter-spacing:0;font-size:11px">(can change anytime)</span></div>
+              <input class="form-input" id="displayName" placeholder="Your Name">
+            </div>
+            <div class="form-group">
+              <div class="form-label">Bio</div>
+              <input class="form-input" id="bio" placeholder="Tell the world about yourself…">
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Username</div><div class="card-sub">Can be changed once every 3 days</div></div>
+            <div id="usernameCooldownBadge" style="display:none;background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.28);border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600"></div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <input class="form-input" id="newUsername" placeholder="username">
+              <div class="form-hint">3–20 chars: letters, numbers, underscore only</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Display Name Effects</div></div>
+          <div class="card-body">
+            <div class="form-group">
+              <div class="form-label">Effect</div>
+              <select class="form-select" id="nameEffect">
+                <option value="none">None</option>
+                <option value="typewriter">Typewriter (loop)</option>
+                <option value="rainbow">Rainbow</option>
+                <option value="gradient">Animated Gradient (2 colors)</option>
+              </select>
+            </div>
+            <div id="typewriterSettings" style="display:none">
+              <div class="form-group">
+                <div class="form-label" style="display:flex;justify-content:space-between">Typewriter Speed <span id="twSpeedVal" style="color:var(--text);font-weight:700">80ms</span></div>
+                <input type="range" min="20" max="300" value="80" id="twSpeed" style="width:100%;accent-color:var(--orange)">
+                <div class="form-hint">Lower = faster typing</div>
+              </div>
+            </div>
+            <div id="gradientSettings" style="display:none">
+              <div class="form-group">
+                <div class="form-label">Gradient Colors</div>
+                <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+                  <div><div style="font-size:11px;color:var(--text4);margin-bottom:5px">Color 1</div><input type="color" id="gradColor1" value="#ff6a1a" style="width:50px;height:36px;border-radius:9px;border:1px solid var(--border2);cursor:pointer;padding:2px;background:var(--bg4)"></div>
+                  <div><div style="font-size:11px;color:var(--text4);margin-bottom:5px">Color 2</div><input type="color" id="gradColor2" value="#ffb060" style="width:50px;height:36px;border-radius:9px;border:1px solid var(--border2);cursor:pointer;padding:2px;background:var(--bg4)"></div>
+                  <div style="flex:1;min-width:120px"><div style="font-size:11px;color:var(--text4);margin-bottom:5px">Preview</div><div id="gradPreview" style="font-size:18px;font-weight:700;background:linear-gradient(90deg,#ff6a1a,#ffb060);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">Your Name</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-orange" id="btnSaveProfile">Save Profile</button>
+          <button class="btn btn-ghost" id="btnResetProfile">Reset</button>
+        </div>
+      </div>
+
+      <!-- LINKS -->
+      <div class="page" id="page-links">
+        <div class="page-title">Links</div>
+        <div class="page-sub">Add and manage links shown on your profile.</div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Add Platform Link</div></div>
+          <div class="card-body" style="padding-bottom:14px">
+            <div class="platform-grid">
+              <button class="platform-btn" data-platform="roblox" data-icon="roblox" data-name="Roblox"><span class="p-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="3"/></svg></span>Roblox</button>
+              <button class="platform-btn" data-platform="spotify" data-icon="spotify" data-name="Spotify"><span class="p-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13.5c2.5-1 5.5-1 8 0"/><path d="M7 10.5c3-1.3 6.5-1.3 9.5 0"/><path d="M9 16.5c2-.7 4-.7 6 0"/></svg></span>Spotify</button>
+              <button class="platform-btn" data-platform="youtube" data-icon="youtube" data-name="YouTube"><span class="p-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg></span>YouTube</button>
+              <button class="platform-btn" data-platform="twitch" data-icon="twitch" data-name="Twitch"><span class="p-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5v4l4-4h5l4-4V2zm-10 9V7m5 4V7"/></svg></span>Twitch</button>
+              <button class="platform-btn" data-platform="instagram" data-icon="instagram" data-name="Instagram"><span class="p-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></span>Instagram</button>
+              <button class="platform-btn" data-platform="tiktok" data-icon="tiktok" data-name="TikTok"><span class="p-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg></span>TikTok</button>
+              <button class="platform-btn" data-platform="twitter" data-icon="twitter" data-name="Twitter/X"><span class="p-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16M4 20L20 4"/></svg></span>Twitter/X</button>
+              <button class="platform-btn" data-platform="discord" data-icon="discord" data-name="Discord"><span class="p-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8.5 17s1 1 3.5 1 3.5-1 3.5-1"/><path d="M15.5 6.5S19 7 20 10c0 0 1 3-1 6 0 0-1.5 1.5-3 1.5l-1-2s1.5-.5 2-1.5"/><path d="M8.5 6.5S5 7 4 10c0 0-1 3 1 6 0 0 1.5 1.5 3 1.5l1-2s-1.5-.5-2-1.5"/></svg></span>Discord</button>
+              <button class="platform-btn" data-platform="github" data-icon="github" data-name="GitHub"><span class="p-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></span>GitHub</button>
+              <button class="platform-btn" data-platform="snapchat" data-icon="snapchat" data-name="Snapchat"><span class="p-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 6 5 6 8v2c-.5 0-2 .5-2 1.5S5 13 6 13c.5 2 2 3.5 3 4-.5.5-2 1-4 1.5 1 1 3.5 1.5 7 1.5s6-.5 7-1.5c-2-.5-3.5-1-4-1.5 1-.5 2.5-2 3-4 1 0 2-.5 2-1.5s-1.5-1.5-2-1.5V8c0-3-2-6-6-6z"/></svg></span>Snapchat</button>
+              <button class="platform-btn" data-platform="kick" data-icon="kick" data-name="Kick"><span class="p-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 4 6 20"/><polyline points="6 12 14 4"/><polyline points="6 12 16 20"/></svg></span>Kick</button>
+              <button class="platform-btn" id="btnCustomLink"><span class="p-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></span>Custom</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Your Links</div>
+            <span id="linkCount" style="font-size:11px;color:var(--text4)">0 / 10</span>
+          </div>
+          <div class="card-body">
+            <div class="link-list" id="linkList"><div style="text-align:center;padding:28px;color:var(--text4);font-size:13px">No links yet — add some above!</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAYOUTS -->
+      <div class="page" id="page-layouts">
+        <div class="page-title">Layouts</div>
+        <div class="page-sub">Customize how your profile card looks and behaves.</div>
+        <div class="sub-tabs">
+          <button class="sub-tab active" data-subtab="card">Card Style</button>
+          <button class="sub-tab" data-subtab="effects">Effects</button>
+          <button class="sub-tab" data-subtab="animation">Animation</button>
+          <button class="sub-tab" data-subtab="fonts">Fonts</button>
+          <button class="sub-tab" data-subtab="clickenter">Click to Enter</button>
+        </div>
+        <div class="sub-page active" id="subtab-card">
+          <div class="card"><div class="card-header"><div class="card-title">Shape &amp; Orientation</div></div><div class="card-body">
+            <div class="form-group"><div class="form-label">Card Shape</div><select class="form-select" id="cardShape"><option value="round">Round</option><option value="square">Square</option></select></div>
+            <div class="form-group"><div class="form-label">Card Orientation</div><select class="form-select" id="cardOrientation"><option value="vertical">Vertical</option><option value="horizontal">Horizontal</option></select></div>
+            <div class="form-group"><div class="form-label">Profile Picture Shape</div><select class="form-select" id="pfpShape"><option value="round">Round</option><option value="square">Square</option></select></div>
+          </div></div>
+          <div class="card"><div class="card-header"><div class="card-title">Color &amp; Opacity</div></div><div class="card-body">
+            <div class="form-group"><div class="form-label">Card Background Color</div><input type="color" id="cardColor" value="#111111" style="width:50px;height:36px;border-radius:9px;border:1px solid var(--border2);cursor:pointer;padding:2px;background:var(--bg4)"></div>
+            <div class="form-group">
+              <div class="form-label" style="display:flex;justify-content:space-between">Card Opacity <span id="cardOpacityVal" style="color:var(--text);font-weight:700">90%</span></div>
+              <input type="range" min="10" max="100" value="90" id="cardOpacity" style="width:100%;accent-color:var(--orange)">
+            </div>
+          </div></div>
+          <div class="card"><div class="card-header"><div class="card-title">Card Background</div><div class="card-sub">Image shown behind the card content</div></div><div class="card-body">
+            <div class="toggle-wrap"><div><div class="toggle-label">Enable Card Background</div><div class="toggle-sub">Show an image as the card's background</div></div><label class="toggle"><input type="checkbox" id="cardBgEnabled"><span class="toggle-slider"></span></label></div>
+            <div class="form-group" style="margin-top:10px"><div class="form-label">Background Image URL</div><input class="form-input" id="cardBgUrl" placeholder="https://i.imgur.com/..."><div class="form-hint">Use a dark or semi-transparent image for best readability</div></div>
+          </div></div>
+          <button class="btn btn-orange layout-save-btn">Save</button>
+        </div>
+        <div class="sub-page" id="subtab-effects">
+          <div class="card"><div class="card-header"><div class="card-title">Card Effects</div></div><div class="card-body">
+            <div class="toggle-wrap"><div><div class="toggle-label">Tilt Effect</div><div class="toggle-sub">Card rotates toward cursor on hover</div></div><label class="toggle"><input type="checkbox" id="tiltEffect"><span class="toggle-slider"></span></label></div>
+            <div style="border-top:1px solid var(--border);margin:12px 0"></div>
+            <div class="toggle-wrap"><div><div class="toggle-label">Blur / Glassmorphism</div><div class="toggle-sub">Background blurred through the card</div></div><label class="toggle"><input type="checkbox" id="blurEffect"><span class="toggle-slider"></span></label></div>
+            <div class="form-group" style="margin-top:10px">
+              <div class="form-label" style="display:flex;justify-content:space-between">Blur Intensity <span id="blurVal" style="color:var(--text);font-weight:700">12px</span></div>
+              <input type="range" min="2" max="40" value="12" id="blurIntensity" style="width:100%;accent-color:var(--orange)">
+            </div>
+          </div></div>
+          <button class="btn btn-orange layout-save-btn">Save</button>
+        </div>
+        <div class="sub-page" id="subtab-animation">
+          <div class="card"><div class="card-header"><div class="card-title">Card Entrance Animation</div></div><div class="card-body">
+            <div class="form-group"><div class="form-label">Animation Style</div>
+              <select class="form-select" id="cardAnimation">
+                <option value="none">None</option>
+                <option value="fadein">Fade In</option>
+                <option value="popin">Pop In</option>
+                <option value="slidein">Slide Up</option>
+                <option value="bouncein">Bounce In</option>
+              </select>
+              <div class="form-hint">Plays when page loads (or after Click to Enter)</div>
+            </div>
+          </div></div>
+          <button class="btn btn-orange layout-save-btn">Save</button>
+        </div>
+
+        <!-- FONTS -->
+        <div class="sub-page" id="subtab-fonts">
+          <div class="card"><div class="card-header"><div class="card-title">Profile Font</div><div class="card-sub">Choose the font shown on your public profile</div></div><div class="card-body">
+            <div class="form-group">
+              <div class="form-label">Font Family</div>
+              <select class="form-select" id="profileFont">
+                <option value="inter">Inter (Default)</option>
+                <option value="roboto">Roboto</option>
+                <option value="raleway">Raleway</option>
+                <option value="oswald">Oswald</option>
+                <option value="bebas">Bebas Neue</option>
+                <option value="orbitron">Orbitron (Sci-Fi)</option>
+                <option value="playfair">Playfair Display (Elegant)</option>
+                <option value="lobster">Lobster</option>
+                <option value="satisfy">Satisfy</option>
+                <option value="caveat">Caveat (Handwritten)</option>
+                <option value="dancing">Dancing Script</option>
+                <option value="special">Special Elite (Typewriter)</option>
+                <option value="marker">Permanent Marker</option>
+                <option value="pacifico">Pacifico</option>
+                <option value="fredoka">Fredoka One (Bubbly)</option>
+                <option value="nunito">Nunito (Rounded)</option>
+                <option value="baloo">Baloo 2 (Fluffy)</option>
+                <option value="boogaloo">Boogaloo (Playful)</option>
+                <option value="lilita">Lilita One (Bold Bubble)</option>
+                <option value="righteous">Righteous</option>
+                <option value="minecraft">Press Start 2P (Minecraft)</option>
+                <option value="vt323">VT323 (Retro Terminal)</option>
+              </select>
+            </div>
+            <div style="padding:16px;background:var(--bg4);border-radius:12px;margin-top:4px">
+              <div style="font-size:11px;color:var(--text4);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em">Preview</div>
+              <div id="fontPreviewName" style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px">Your Display Name</div>
+              <div id="fontPreviewBio" style="font-size:13px;color:var(--text3)">Your bio text goes here ✨</div>
+            </div>
+          </div></div>
+          <button class="btn btn-orange layout-save-btn">Save</button>
+        </div>
+
+        <div class="sub-page" id="subtab-clickenter">
+          <div class="toggle-wrap" style="background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:14px 18px;margin-bottom:10px"><div><div class="toggle-label">Enable Click to Enter</div><div class="toggle-sub">Show a full-screen overlay before the profile loads</div></div><label class="toggle"><input type="checkbox" id="cteEnabled"><span class="toggle-slider"></span></label></div>
+          <div class="cte-preview"><div class="cte-preview-text" id="ctePreviewText">Click to Enter</div><div style="font-size:10px;color:var(--text5);margin-top:6px">Preview</div></div>
+          <div class="form-group"><div class="form-label">Button Text</div><input class="form-input" id="cteText" placeholder="Click to Enter"></div>
+          <div class="form-group">
+            <div class="form-label">Text Effect</div>
+            <select class="form-select" id="cteEffect">
+              <option value="none">None</option>
+              <option value="rainbow">Rainbow (cycling colors)</option>
+              <option value="pulse">Pulse (fade in/out)</option>
+              <option value="glow">Glow</option>
+              <option value="gradient">Animated Gradient</option>
+              <option value="fontcycle">Font Cycle (fonts change)</option>
+            </select>
+          </div>
+          <div id="cteColorGroup" class="form-group">
+            <div class="form-label">Text Color</div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <input type="color" id="cteColor" value="#ffffff" style="width:44px;height:34px;border-radius:8px;border:1px solid var(--border2);cursor:pointer;padding:2px;background:var(--bg4)">
+              <span style="font-size:12px;color:var(--text4)">Custom color for the CTE text</span>
+            </div>
+          </div>
+          <div id="cteGradGroup" class="form-group" style="display:none">
+            <div class="form-label">Gradient Colors</div>
+            <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+              <div><div style="font-size:11px;color:var(--text4);margin-bottom:5px">Color 1</div><input type="color" id="cteGradColor1" value="#ff6a1a" style="width:44px;height:34px;border-radius:8px;border:1px solid var(--border2);cursor:pointer;padding:2px;background:var(--bg4)"></div>
+              <div><div style="font-size:11px;color:var(--text4);margin-bottom:5px">Color 2</div><input type="color" id="cteGradColor2" value="#ffb060" style="width:44px;height:34px;border-radius:8px;border:1px solid var(--border2);cursor:pointer;padding:2px;background:var(--bg4)"></div>
+            </div>
+          </div>
+          <div class="form-group"><div class="form-label">Background Music URL</div><input class="form-input" id="cteMusicUrl" placeholder="https://... (.mp3, .wav, .ogg)"><div class="form-hint">Starts playing when the user clicks the button</div></div>
+          <div style="border-top:1px solid var(--border);margin:14px 0"></div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px">Music Label Card</div>
+          <div class="toggle-wrap" style="background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:14px 18px;margin-bottom:10px"><div><div class="toggle-label">Show Music Label</div><div class="toggle-sub">Display a music card below your profile with title and controls</div></div><label class="toggle"><input type="checkbox" id="showMusicLabel"><span class="toggle-slider"></span></label></div>
+          <div class="form-group"><div class="form-label">Song Title</div><input class="form-input" id="musicTitle" placeholder="My Favourite Song…"><div class="form-hint">Shown in the music label card on your profile</div></div>
+          <div class="form-group"><div class="form-label">Thumbnail Image URL</div><input class="form-input" id="musicThumbnailUrl" placeholder="https://i.imgur.com/... (album art)"><div class="form-hint">Square image works best</div></div>
+          <div class="form-group"><div class="form-label">Timeline Bar Color</div><div style="display:flex;align-items:center;gap:10px"><input type="color" id="musicTimelineColor" value="#f97316" style="width:44px;height:34px;border-radius:8px;border:1px solid var(--border2);cursor:pointer;padding:2px;background:var(--bg4)"><span style="font-size:12px;color:var(--text4)">Color of the progress bar fill</span></div></div>
+          <div style="border-top:1px solid var(--border);margin:14px 0"></div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px">Views</div>
+          <div class="toggle-wrap" style="background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:14px 18px;margin-bottom:10px"><div><div class="toggle-label">Show Views Widget</div><div class="toggle-sub">Display a view count badge on your profile card (unique IPs only)</div></div><label class="toggle"><input type="checkbox" id="showViews"><span class="toggle-slider"></span></label></div>
+          <button class="btn btn-orange layout-save-btn">Save</button>
+        </div>
+      </div>
+
+      <!-- BADGES -->
+      <div class="page" id="page-badges">
+        <div class="page-title">Badges</div>
+        <div class="page-sub">Choose which badges to display on your profile (max 6). Badges are assigned by admins.</div>
+        <div id="badgesNoneMsg" style="display:none;padding:18px;background:var(--bg4);border:1px solid var(--border);border-radius:12px;color:var(--text4);font-size:13px;text-align:center;margin-bottom:16px">
+          You don't have any badges yet. Badges are awarded by the wlc.lol team.
+        </div>
+        <div id="badgeGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px"></div>
+        <button id="saveBadgesBtn" onclick="saveBadges()" style="display:none;padding:11px 24px;background:var(--orange);color:#09080a;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif">Save Badge Selection</button>
+      </div>
+
+      <!-- PREMIUM -->
+      <div class="page" id="page-premium">
+        <div class="coming-soon-wrap">
+          <div class="coming-soon-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+          <div class="coming-soon-title">Premium</div><div class="coming-soon-badge">Coming Soon</div>
+          <div class="coming-soon-sub">Unlock advanced features, custom domains, unlimited links, and more.</div>
+        </div>
+      </div>
+
+      <!-- IMAGE HOSTING -->
+      <div class="page" id="page-imagehosting">
+        <div class="coming-soon-wrap">
+          <div class="coming-soon-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></div>
+          <div class="coming-soon-title">Image Hosting</div><div class="coming-soon-badge">Coming Soon</div>
+          <div class="coming-soon-sub">Host images with CDN-backed storage. Up to 5GB, direct links, ShareX support.</div>
+        </div>
+      </div>
+
+
+      <!-- NOTIFICATIONS -->
+      <div class="page" id="page-notifications">
+        <div class="page-title">Notifications</div>
+        <div class="page-sub">System announcements and updates from the wlc.lol team.</div>
+        <div id="notifPageContent">
+          <div style="padding:40px;text-align:center;color:var(--text4)">Loading notifications…</div>
+        </div>
+      </div>
+
+      <!-- SUPPORT -->
+      <div class="page" id="page-support">
+        <div class="page-title">Support</div>
+        <div class="page-sub">Need help? Create a ticket and our team will get back to you.</div>
+        <div id="supportView">
+          <!-- Ticket list view -->
+          <div id="supportTicketList">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+              <button class="btn btn-orange" onclick="showCreateTicket()">+ Create Ticket</button>
+            </div>
+            <div id="myTicketsList"></div>
+          </div>
+          <!-- Create ticket view -->
+          <div id="supportCreateView" style="display:none">
+            <div class="card" style="max-width:600px">
+              <div class="card-header"><div class="card-title">New Support Ticket</div></div>
+              <div class="card-body">
+                <div class="form-group">
+                  <div class="form-label">Subject</div>
+                  <input class="form-input" id="ticketSubject" placeholder="Briefly describe your issue">
+                </div>
+                <div class="form-group">
+                  <div class="form-label">Message</div>
+                  <textarea class="form-input" id="ticketMessage" rows="5" placeholder="Describe your issue in detail…" style="resize:vertical;line-height:1.6"></textarea>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:4px">
+                  <button class="btn btn-ghost" onclick="hideCreateTicket()">Cancel</button>
+                  <button class="btn btn-orange" onclick="submitTicket()">Submit Ticket</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Ticket thread view -->
+          <div id="supportThreadView" style="display:none">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+              <button class="btn btn-ghost" onclick="showTicketList()">← Back</button>
+              <div style="flex:1">
+                <div style="font-size:15px;font-weight:700;color:var(--text)" id="threadSubject"></div>
+                <div style="font-size:12px;color:var(--text4)" id="threadMeta"></div>
+              </div>
+              <span id="threadStatusPill"></span>
+            </div>
+            <div class="card" style="max-width:700px">
+              <div class="card-body">
+                <div id="threadMessages" style="display:flex;flex-direction:column;gap:12px;max-height:400px;overflow-y:auto;margin-bottom:16px;padding-right:4px"></div>
+                <div id="threadReplyArea" style="display:flex;gap:8px;align-items:flex-end">
+                  <textarea class="form-input" id="threadReplyText" rows="3" placeholder="Write a message…" style="flex:1;resize:none;line-height:1.5"></textarea>
+                  <button class="btn btn-orange" onclick="sendTicketMessage()" style="align-self:flex-end">Send</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <div class="page-title">Settings</div>
+        <div class="page-sub">Account preferences and dashboard configuration.</div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Dashboard Theme</div></div>
+          <div class="card-body">
+            <div class="toggle-wrap">
+              <div><div class="toggle-label">Dark Mode</div><div class="toggle-sub">Switch between dark and light theme</div></div>
+              <label class="toggle"><input type="checkbox" id="darkModeToggle" checked><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Account Info</div></div>
+          <div class="card-body">
+            <div class="form-group"><div class="form-label">Email</div><input class="form-input" id="settingsEmail" disabled></div>
+            <div class="form-group"><div class="form-label">User ID</div><input class="form-input" id="settingsUid" disabled style="font-family:monospace;font-size:12px"></div>
+          </div>
+        </div>
+        <div class="card" style="border-color:rgba(239,68,68,0.18)">
+          <div class="card-header"><div class="card-title" style="color:#ef4444">Danger Zone</div></div>
+          <div class="card-body">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+              <div><div style="font-size:13.5px;font-weight:500;color:var(--text)">Logout</div><div style="font-size:12px;color:var(--text4);margin-top:2px">Clear token and return to login</div></div>
+              <button class="btn btn-danger" id="btnLogoutSettings">Logout</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="platformModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close="platformModal">×</button>
+    <div class="modal-title" id="platformModalTitle">Add Link</div>
+    <div class="modal-sub" id="platformModalSub">Paste your profile URL</div>
+    <div class="form-group"><div class="form-label" id="platformModalLabel">URL</div><input class="form-input" id="platformModalUrl" placeholder="https://..."></div>
+    <div class="form-group"><div class="form-label">Display Title</div><input class="form-input" id="platformModalTitle2"></div>
+    <div style="display:flex;gap:7px">
+      <button class="btn btn-orange" style="flex:1" id="btnSavePlatformLink">Add Link</button>
+      <button class="btn btn-ghost" data-close="platformModal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="customLinkModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close="customLinkModal">×</button>
+    <div class="modal-title">Custom Link</div>
+    <div class="modal-sub">Add a link with a custom title and icon</div>
+    <div class="form-group"><div class="form-label">Title</div><input class="form-input" id="customTitle" placeholder="My Website"></div>
+    <div class="form-group"><div class="form-label">URL</div><input class="form-input" id="customUrl" placeholder="https://..."></div>
+    <div class="form-group"><div class="form-label">Icon Image URL <span style="color:var(--text5);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div><input class="form-input" id="customIconUrl" placeholder="https://i.imgur.com/... (square image)"><div class="form-hint" style="margin-top:4px">Leave empty to use the default link icon</div></div>
+    <div style="display:flex;gap:7px">
+      <button class="btn btn-orange" style="flex:1" id="btnSaveCustomLink">Add Link</button>
+      <button class="btn btn-ghost" data-close="customLinkModal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="editLinkModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close="editLinkModal">×</button>
+    <div class="modal-title">Edit Link</div>
+    <input type="hidden" id="editLinkId">
+    <div class="form-group"><div class="form-label">Title</div><input class="form-input" id="editLinkTitle"></div>
+    <div class="form-group"><div class="form-label">URL</div><input class="form-input" id="editLinkUrl"></div>
+    <div class="form-group"><div class="form-label">Icon Image URL <span style="color:var(--text5);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div><input class="form-input" id="editLinkIconUrl" placeholder="https://i.imgur.com/..."></div>
+    <div style="display:flex;gap:7px">
+      <button class="btn btn-orange" style="flex:1" id="btnUpdateLink">Save</button>
+      <button class="btn btn-ghost" data-close="editLinkModal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="flash-container" id="flashContainer"></div>
+
+<script>
+'use strict';
+var currentUser = null;
+var links = [];
+var currentPlatformIcon = 'link';
+
+var PLATFORM_PLACEHOLDERS = {
+  roblox:'https://www.roblox.com/users/...',spotify:'https://open.spotify.com/user/...',
+  youtube:'https://youtube.com/@...',twitch:'https://twitch.tv/...',
+  instagram:'https://instagram.com/...',tiktok:'https://tiktok.com/@...',
+  twitter:'https://x.com/...',discord:'https://discord.gg/...',
+  github:'https://github.com/...',snapchat:'https://snapchat.com/add/...',kick:'https://kick.com/...'
+};
+
+var LINK_SVGS = {
+  roblox:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="3"/></svg>',
+  spotify:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13.5c2.5-1 5.5-1 8 0"/><path d="M7 10.5c3-1.3 6.5-1.3 9.5 0"/><path d="M9 16.5c2-.7 4-.7 6 0"/></svg>',
+  youtube:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>',
+  twitch:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5v4l4-4h5l4-4V2zm-10 9V7m5 4V7"/></svg>',
+  instagram:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>',
+  tiktok:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>',
+  twitter:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16M4 20L20 4"/></svg>',
+  discord:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8.5 17s1 1 3.5 1 3.5-1 3.5-1"/><path d="M15.5 6.5S19 7 20 10c0 0 1 3-1 6 0 0-1.5 1.5-3 1.5l-1-2s1.5-.5 2-1.5"/><path d="M8.5 6.5S5 7 4 10c0 0-1 3 1 6 0 0 1.5 1.5 3 1.5l1-2s-1.5-.5-2-1.5"/></svg>',
+  github:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>',
+  snapchat:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 6 5 6 8v2c-.5 0-2 .5-2 1.5S5 13 6 13c.5 2 2 3.5 3 4-.5.5-2 1-4 1.5 1 1 3.5 1.5 7 1.5s6-.5 7-1.5c-2-.5-3.5-1-4-1.5 1-.5 2.5-2 3-4 1 0 2-.5 2-1.5s-1.5-1.5-2-1.5V8c0-3-2-6-6-6z"/></svg>',
+  kick:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 4 6 20"/><polyline points="6 12 14 4"/><polyline points="6 12 16 20"/></svg>'
+};
+var LINK_SVG_DEFAULT = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+var EDIT_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+var DEL_SVG  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function flash(msg, type){
+  type = type || 'success';
+  var c = document.getElementById('flashContainer');
+  var el = document.createElement('div');
+  el.className = 'flash-msg flash-' + type;
+  var icon = type === 'success'
+    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  el.innerHTML = icon + escHtml(msg);
+  c.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 3000);
+}
+
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('wlc-theme', t);
+  var moon = document.getElementById('themeMoonIcon');
+  var sun  = document.getElementById('themeSunIcon');
+  if(moon) moon.style.display = t === 'dark'  ? 'block' : 'none';
+  if(sun)  sun.style.display  = t === 'light' ? 'block' : 'none';
+  var tog = document.getElementById('darkModeToggle');
+  if(tog) tog.checked = t === 'dark';
+}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  var page = document.getElementById('page-' + id);
+  if(page) page.classList.add('active');
+  var btn = document.querySelector('.nav-item[data-page="' + id + '"]');
+  if(btn) btn.classList.add('active');
+  var names = {overview:'Overview',profile:'Profile',links:'Links',layouts:'Layouts',badges:'Badges',premium:'Premium',imagehosting:'Image Hosting',settings:'Settings',fonts:'Fonts',notifications:'Notifications',support:'Support'};
+  document.getElementById('breadcrumb').innerHTML = 'Dashboard <span class="sep">›</span> ' + (names[id] || id);
+}
+
+async function logout(){
+  await fetch('/api/auth/logout', {method:'POST', credentials:'include'});
+  window.location.href = '/login';
+}
+
+async function fetchMe(){
+  try {
+    var res = await fetch('/api/auth/me', {credentials:'include'});
+    if(!res.ok){ window.location.href = '/login'; return; }
+    var data = await res.json();
+    if(!data.success){ window.location.href = '/login'; return; }
+    currentUser = data.user;
+    populateUser(currentUser);
+  } catch(e){ window.location.href = '/login'; }
+}
+
+function populateUser(u){
+  document.getElementById('sidebarName').textContent   = u.displayName || u.username;
+  document.getElementById('sidebarHandle').textContent = '@' + u.username;
+  var sba = document.getElementById('sidebarAvatar');
+  if(u.avatarUrl){
+    sba.innerHTML = '<img src="' + escHtml(u.avatarUrl) + '">';
+  } else {
+    sba.textContent = (u.username || '?')[0].toUpperCase();
+  }
+  document.getElementById('statUid').textContent       = u.uid;
+  document.getElementById('statUsername').textContent  = '@' + u.username;
+  document.getElementById('overviewTitle').textContent = 'Welcome back, ' + (u.displayName || u.username);
+  document.getElementById('viewProfileBtn').href       = '/' + u.username;
+  document.getElementById('settingsEmail').value       = u.email  || '';
+  document.getElementById('settingsUid').value         = u.uid    || '';
+  document.getElementById('displayName').value         = u.displayName || '';
+  document.getElementById('bio').value                 = u.bio    || '';
+  document.getElementById('avatarUrl').value           = u.avatarUrl || '';
+  document.getElementById('bgUrl').value               = u.bgUrl  || '';
+  document.getElementById('newUsername').value         = u.username || '';
+  var ap = document.getElementById('avatarPreview');
+  if(u.avatarUrl){ ap.innerHTML = '<img src="' + escHtml(u.avatarUrl) + '">'; }
+  else { ap.textContent = (u.username || '?')[0].toUpperCase(); }
+  if(u.nameEffect){ document.getElementById('nameEffect').value = u.nameEffect; onNameEffectChange(); }
+  if(u.twSpeed)    document.getElementById('twSpeed').value     = u.twSpeed;
+  if(u.gradColor1) document.getElementById('gradColor1').value  = u.gradColor1;
+  if(u.gradColor2) document.getElementById('gradColor2').value  = u.gradColor2;
+  checkUsernameCooldown(u.lastUsernameChange);
+  loadLayoutSettings();
+  loadBadgesTab(u);
+}
+
+function checkUsernameCooldown(lastChange){
+  var badge = document.getElementById('usernameCooldownBadge');
+  var input = document.getElementById('newUsername');
+  if(!lastChange){ badge.style.display='none'; input.disabled=false; return; }
+  var diff  = Date.now() - new Date(lastChange).getTime();
+  var three = 3 * 24 * 60 * 60 * 1000;
+  if(diff < three){
+    var left = Math.ceil((three - diff) / (1000 * 60 * 60));
+    badge.style.display = 'block';
+    badge.textContent   = left + 'h cooldown';
+    input.disabled      = true;
+  } else {
+    badge.style.display = 'none';
+    input.disabled      = false;
+  }
+}
+
+async function saveProfile(){
+  if(!currentUser) return;
+  var twSpeedRaw = parseInt(document.getElementById('twSpeed').value);
+  var updates = {
+    displayName : document.getElementById('displayName').value.trim(),
+    bio         : document.getElementById('bio').value.trim(),
+    avatarUrl   : document.getElementById('avatarUrl').value.trim(),
+    bgUrl       : document.getElementById('bgUrl').value.trim(),
+    nameEffect  : document.getElementById('nameEffect').value,
+    twSpeed     : isNaN(twSpeedRaw) ? 80 : twSpeedRaw,
+    gradColor1  : document.getElementById('gradColor1').value,
+    gradColor2  : document.getElementById('gradColor2').value
+  };
+  var newUn = document.getElementById('newUsername').value.trim().toLowerCase();
+  if(newUn && newUn !== currentUser.username && !document.getElementById('newUsername').disabled){
+    updates.username           = newUn;
+    updates.lastUsernameChange = new Date().toISOString();
+  }
+  try {
+    var res  = await fetch('/api/profile', {method:'PUT', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify(updates)});
+    var data = await res.json();
+    if(data.success){ flash('Profile saved!', 'success'); await fetchMe(); }
+    else flash(data.message || 'Save failed', 'error');
+  } catch(e){ flash('Connection error', 'error'); }
+}
+
+function previewAvatar(){
+  var url = document.getElementById('avatarUrl').value.trim();
+  var ap  = document.getElementById('avatarPreview');
+  if(url){ ap.innerHTML = '<img src="' + escHtml(url) + '" onerror="this.parentElement.textContent=\'?\'">' ; }
+}
+
+function loadLayoutSettings(){
+  var s = (currentUser && currentUser.layoutSettings) || JSON.parse(localStorage.getItem('wlc-layouts') || '{}');
+  if(s.cardShape)                  document.getElementById('cardShape').value        = s.cardShape;
+  if(s.cardOrientation)            document.getElementById('cardOrientation').value  = s.cardOrientation;
+  if(s.pfpShape)                   document.getElementById('pfpShape').value         = s.pfpShape;
+  if(s.cardColor)                  document.getElementById('cardColor').value        = s.cardColor;
+  if(s.cardOpacity !== undefined){ document.getElementById('cardOpacity').value      = s.cardOpacity; document.getElementById('cardOpacityVal').textContent = s.cardOpacity + '%'; }
+  if(s.cardBgEnabled !== undefined) document.getElementById('cardBgEnabled').checked = s.cardBgEnabled;
+  if(s.cardBgUrl)                  document.getElementById('cardBgUrl').value        = s.cardBgUrl;
+  if(s.tiltEffect !== undefined)   document.getElementById('tiltEffect').checked     = s.tiltEffect;
+  if(s.blurEffect !== undefined)   document.getElementById('blurEffect').checked     = s.blurEffect;
+  if(s.blurIntensity !== undefined){ document.getElementById('blurIntensity').value  = s.blurIntensity; document.getElementById('blurVal').textContent = s.blurIntensity + 'px'; }
+  if(s.cardAnimation)              document.getElementById('cardAnimation').value    = s.cardAnimation;
+  if(s.cteEnabled !== undefined)   document.getElementById('cteEnabled').checked     = s.cteEnabled;
+  if(s.cteText){ document.getElementById('cteText').value = s.cteText; document.getElementById('ctePreviewText').textContent = s.cteText; }
+  if(s.cteMusicUrl)                document.getElementById('cteMusicUrl').value      = s.cteMusicUrl;
+  if(s.cteEffect)                  document.getElementById('cteEffect').value        = s.cteEffect;
+  if(s.cteColor)                   document.getElementById('cteColor').value         = s.cteColor;
+  if(s.cteGradColor1)              document.getElementById('cteGradColor1').value    = s.cteGradColor1;
+  if(s.cteGradColor2)              document.getElementById('cteGradColor2').value    = s.cteGradColor2;
+  updateCteEffectUI(s.cteEffect || 'none');
+  if(s.showMusicLabel !== undefined) document.getElementById('showMusicLabel').checked = s.showMusicLabel;
+  if(s.musicTitle)                 document.getElementById('musicTitle').value       = s.musicTitle;
+  if(s.musicThumbnailUrl)          document.getElementById('musicThumbnailUrl').value = s.musicThumbnailUrl;
+  if(s.musicTimelineColor)         document.getElementById('musicTimelineColor').value = s.musicTimelineColor;
+  if(s.showViews !== undefined)    document.getElementById('showViews').checked      = s.showViews;
+  if(s.profileFont){               document.getElementById('profileFont').value      = s.profileFont; updateFontPreview(s.profileFont); }
+}
+
+async function saveLayouts(){
+  var cardOpacityRaw  = parseInt(document.getElementById('cardOpacity').value);
+  var blurIntensityRaw = parseInt(document.getElementById('blurIntensity').value);
+  var s = {
+    cardShape      : document.getElementById('cardShape').value,
+    cardOrientation: document.getElementById('cardOrientation').value,
+    pfpShape       : document.getElementById('pfpShape').value,
+    cardColor      : document.getElementById('cardColor').value,
+    cardOpacity    : isNaN(cardOpacityRaw)  ? 90  : cardOpacityRaw,
+    cardBgEnabled  : document.getElementById('cardBgEnabled').checked,
+    cardBgUrl      : document.getElementById('cardBgUrl').value.trim(),
+    tiltEffect     : document.getElementById('tiltEffect').checked,
+    blurEffect     : document.getElementById('blurEffect').checked,
+    blurIntensity  : isNaN(blurIntensityRaw) ? 12 : blurIntensityRaw,
+    cardAnimation  : document.getElementById('cardAnimation').value,
+    cteEnabled     : document.getElementById('cteEnabled').checked,
+    cteText        : document.getElementById('cteText').value.trim(),
+    cteEffect      : document.getElementById('cteEffect').value,
+    cteColor       : document.getElementById('cteColor').value,
+    cteGradColor1  : document.getElementById('cteGradColor1').value,
+    cteGradColor2  : document.getElementById('cteGradColor2').value,
+    cteMusicUrl    : document.getElementById('cteMusicUrl').value.trim(),
+    showMusicLabel : document.getElementById('showMusicLabel').checked,
+    musicTitle     : document.getElementById('musicTitle').value.trim(),
+    musicThumbnailUrl: document.getElementById('musicThumbnailUrl').value.trim(),
+    musicTimelineColor: document.getElementById('musicTimelineColor').value,
+    showViews      : document.getElementById('showViews').checked,
+    profileFont    : document.getElementById('profileFont').value
+  };
+  localStorage.setItem('wlc-layouts', JSON.stringify(s));
+  try {
+    var res  = await fetch('/api/profile', {method:'PUT', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify({layoutSettings: s})});
+    var data = await res.json();
+    if(data.success){ if(currentUser) currentUser.layoutSettings = s; flash('Layout saved!', 'success'); }
+    else flash(data.message || 'Save failed', 'error');
+  } catch(e){ flash('Connection error', 'error'); }
+}
+
+function onNameEffectChange(){
+  var v = document.getElementById('nameEffect').value;
+  document.getElementById('typewriterSettings').style.display = v === 'typewriter' ? 'block' : 'none';
+  document.getElementById('gradientSettings').style.display   = v === 'gradient'   ? 'block' : 'none';
+}
+
+function setupGradientPreview(){
+  function upd(){
+    var c1 = document.getElementById('gradColor1').value;
+    var c2 = document.getElementById('gradColor2').value;
+    var p  = document.getElementById('gradPreview');
+    p.style.backgroundImage = 'linear-gradient(90deg,' + c1 + ',' + c2 + ')';
+    p.style.webkitBackgroundClip = 'text';
+    p.style.backgroundClip = 'text';
+    p.style.webkitTextFillColor = 'transparent';
+  }
+  document.getElementById('gradColor1').addEventListener('input', upd);
+  document.getElementById('gradColor2').addEventListener('input', upd);
+}
+
+var FONT_MAP = {
+  inter:'Inter,sans-serif',roboto:'Roboto,sans-serif',raleway:'Raleway,sans-serif',
+  oswald:'Oswald,sans-serif',bebas:'Bebas Neue,cursive',orbitron:'Orbitron,sans-serif',
+  playfair:'Playfair Display,serif',lobster:'Lobster,cursive',satisfy:'Satisfy,cursive',
+  caveat:'Caveat,cursive',dancing:'Dancing Script,cursive',special:'Special Elite,cursive',
+  marker:'Permanent Marker,cursive',pacifico:'Pacifico,cursive',fredoka:'Fredoka One,cursive',
+  nunito:'Nunito,sans-serif',baloo:'Baloo 2,cursive',boogaloo:'Boogaloo,cursive',
+  lilita:'Lilita One,cursive',righteous:'Righteous,cursive',
+  minecraft:'Press Start 2P,monospace',vt323:'VT323,monospace'
+};
+
+function updateFontPreview(val){
+  var ff = FONT_MAP[val] || 'Inter,sans-serif';
+  var pn = document.getElementById('fontPreviewName');
+  var pb = document.getElementById('fontPreviewBio');
+  if(pn){ pn.style.fontFamily = ff; }
+  if(pb){ pb.style.fontFamily = ff; }
+}
+
+function updateCteEffectUI(effect){
+  var colorGroup = document.getElementById('cteColorGroup');
+  var gradGroup  = document.getElementById('cteGradGroup');
+  if(!colorGroup || !gradGroup) return;
+  // Hide gradient group unless gradient effect selected
+  gradGroup.style.display  = effect === 'gradient' ? 'block' : 'none';
+  // Hide plain color picker for rainbow/gradient/fontcycle (color not relevant)
+  var hideColor = ['rainbow','gradient','fontcycle'].includes(effect);
+  colorGroup.style.display = hideColor ? 'none' : 'block';
+}
+
+async function loadLinks(){
+  try {
+    var res  = await fetch('/api/links', {credentials:'include'});
+    var data = await res.json();
+    if(data.success){ links = data.links; renderLinks(); }
+  } catch(e){}
+}
+
+function renderLinks(){
+  var list = document.getElementById('linkList');
+  document.getElementById('linkCount').textContent = links.length + ' / 10';
+  if(!links.length){
+    list.innerHTML = '<div style="text-align:center;padding:28px;color:var(--text4);font-size:13px">No links yet — add some above!</div>';
+    return;
+  }
+  list.innerHTML = '';
+  links.forEach(function(l){
+    var row = document.createElement('div');
+    row.className = 'link-item';
+    var iconHtml;
+    if(l.iconUrl){
+      iconHtml = '<img src="' + escHtml(l.iconUrl) + '" style="width:20px;height:20px;object-fit:cover;border-radius:5px;" onerror="this.outerHTML=\'' + LINK_SVG_DEFAULT.replace(/'/g,"\\'") + '\'">';
+    } else {
+      iconHtml = LINK_SVGS[l.icon] || LINK_SVG_DEFAULT;
+    }
+    row.innerHTML =
+      '<div class="link-icon">' + iconHtml + '</div>' +
+      '<div class="link-info"><div class="link-name">' + escHtml(l.title) + '</div><div class="link-url">' + escHtml(l.url) + '</div></div>' +
+      '<div style="display:flex;align-items:center;gap:7px">' +
+        '<div class="link-status ' + (l.isActive ? 'on' : 'off') + '"></div>' +
+        '<button class="link-btn link-btn-edit" title="Edit">' + EDIT_SVG + '</button>' +
+        '<button class="link-btn link-btn-del" title="Delete">' + DEL_SVG + '</button>' +
+      '</div>';
+    (function(link){
+      row.querySelector('.link-btn-edit').addEventListener('click', function(){ openEditLinkModal(link); });
+      row.querySelector('.link-btn-del').addEventListener('click',  function(){ deleteLink(link.id); });
+    })(l);
+    list.appendChild(row);
+  });
+}
+
+function openEditLinkModal(link){
+  document.getElementById('editLinkId').value       = link.id;
+  document.getElementById('editLinkTitle').value    = link.title;
+  document.getElementById('editLinkUrl').value      = link.url;
+  document.getElementById('editLinkIconUrl').value  = link.iconUrl || '';
+  openModal('editLinkModal');
+}
+
+async function updateLink(){
+  var id      = document.getElementById('editLinkId').value;
+  var title   = document.getElementById('editLinkTitle').value.trim();
+  var url     = document.getElementById('editLinkUrl').value.trim();
+  var iconUrl = document.getElementById('editLinkIconUrl').value.trim();
+  if(!title || !url){ flash('Fill in all fields', 'error'); return; }
+  try {
+    var res  = await fetch('/api/links/' + id, {method:'PUT', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify({title:title, url:url, iconUrl: iconUrl})});
+    var data = await res.json();
+    if(data.success){ flash('Link updated!', 'success'); closeModal('editLinkModal'); await loadLinks(); }
+    else flash(data.message || 'Error', 'error');
+  } catch(e){ flash('Connection error', 'error'); }
+}
+
+async function deleteLink(id){
+  if(!confirm('Delete this link?')) return;
+  try {
+    var res  = await fetch('/api/links/' + id, {method:'DELETE', credentials:'include'});
+    var data = await res.json();
+    if(data.success){ flash('Link deleted', 'success'); await loadLinks(); }
+    else flash(data.message || 'Error', 'error');
+  } catch(e){ flash('Connection error', 'error'); }
+}
+
+function openPlatformModal(platform, icon, name){
+  currentPlatformIcon = icon;
+  document.getElementById('platformModalTitle').textContent  = 'Add ' + name;
+  document.getElementById('platformModalSub').textContent    = 'Paste your ' + name + ' URL';
+  document.getElementById('platformModalLabel').textContent  = name + ' URL';
+  document.getElementById('platformModalUrl').placeholder    = PLATFORM_PLACEHOLDERS[platform] || 'https://...';
+  document.getElementById('platformModalUrl').value          = '';
+  document.getElementById('platformModalTitle2').value       = name;
+  openModal('platformModal');
+}
+
+async function savePlatformLink(){
+  var url   = document.getElementById('platformModalUrl').value.trim();
+  var title = document.getElementById('platformModalTitle2').value.trim();
+  if(!url || !title){ flash('Fill in all fields', 'error'); return; }
+  try {
+    var res  = await fetch('/api/links', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify({title:title, url:url, icon:currentPlatformIcon})});
+    var data = await res.json();
+    if(data.success){ flash('Link added!', 'success'); closeModal('platformModal'); await loadLinks(); }
+    else flash(data.message || 'Error', 'error');
+  } catch(e){ flash('Connection error', 'error'); }
+}
+
+async function saveCustomLink(){
+  var title   = document.getElementById('customTitle').value.trim();
+  var url     = document.getElementById('customUrl').value.trim();
+  var iconUrl = document.getElementById('customIconUrl').value.trim();
+  if(!title || !url){ flash('Fill in all fields', 'error'); return; }
+  try {
+    var res  = await fetch('/api/links', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify({title:title, url:url, icon:'link', iconUrl: iconUrl || ''})});
+    var data = await res.json();
+    if(data.success){ flash('Link added!', 'success'); closeModal('customLinkModal'); await loadLinks(); }
+    else flash(data.message || 'Error', 'error');
+  } catch(e){ flash('Connection error', 'error'); }
+}
+
+
+// ── Badge functions ──────────────────────────────────────────────────────────
+const ALL_BADGES = [
+  {id:'booster',label:'Booster'},{id:'bug hunter',label:'Bug Hunter'},
+  {id:'creator',label:'Creator'},{id:'famous',label:'Famous'},
+  {id:'friend',label:'Friend'},{id:'gifter',label:'Gifter'},
+  {id:'og',label:'OG'},{id:'owner',label:'Owner'},
+  {id:'premium',label:'Premium'},{id:'staff',label:'Staff'},
+  {id:'verified',label:'Verified'}
+];
+function loadBadgesTab(user){
+  var owned=user.badges||[],active=user.activeBadges||[];
+  var grid=document.getElementById('badgeGrid');
+  var none=document.getElementById('badgesNoneMsg');
+  var saveBtn=document.getElementById('saveBadgesBtn');
+  if(!owned.length){none.style.display='block';grid.style.display='none';saveBtn.style.display='none';return;}
+  none.style.display='none';grid.style.display='grid';saveBtn.style.display='inline-block';
+  grid.innerHTML=owned.map(function(bid){
+    var info=ALL_BADGES.find(function(b){return b.id===bid;})||{id:bid,label:bid};
+    var isActive=active.includes(bid);
+    var file=encodeURIComponent(bid)+'.png';
+    return '<div class="badge-card'+(isActive?' badge-active':'')+'" data-badge="'+escHtml(bid)+'" onclick="toggleBadge(this)" style="cursor:pointer;padding:14px 10px;background:var(--bg4);border:2px solid '+(isActive?'var(--orange)':'var(--border)')+';border-radius:14px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .2s;user-select:none">'
+      +'<img src="/assets/'+file+'" alt="'+escHtml(info.label)+'" style="width:40px;height:40px;object-fit:contain" onerror="this.style.opacity=\'0.3\'">'
+      +'<span style="font-size:12px;font-weight:600;color:var(--text);text-align:center">'+escHtml(info.label)+'</span>'
+      +'<span style="font-size:10px;color:'+(isActive?'var(--orange)':'var(--text4)')+'">'+(isActive?'● Visible':'○ Hidden')+'</span>'
+      +'</div>';
+  }).join('');
+}
+function toggleBadge(card){
+  var active=document.querySelectorAll('#badgeGrid .badge-active');
+  var isOn=card.classList.contains('badge-active');
+  if(!isOn&&active.length>=6){flash('Max 6 badges at once','error');return;}
+  card.classList.toggle('badge-active');
+  var on=card.classList.contains('badge-active');
+  card.style.borderColor=on?'var(--orange)':'var(--border)';
+  var spans=card.querySelectorAll('span');
+  spans[1].style.color=on?'var(--orange)':'var(--text4)';
+  spans[1].textContent=on?'● Visible':'○ Hidden';
+}
+async function saveBadges(){
+  var selected=[];
+  document.querySelectorAll('#badgeGrid .badge-active').forEach(function(c){selected.push(c.dataset.badge);});
+  try{
+    var res=await fetch('/api/profile/badges',{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({activeBadges:selected})});
+    var data=await res.json();
+    if(data.success){flash('Badges saved!','success');currentUser.activeBadges=data.activeBadges;}
+    else flash(data.message||'Error saving badges','error');
+  }catch(e){flash('Connection error','error');}
+}
+
+document.addEventListener('DOMContentLoaded', async function(){
+  setTheme(localStorage.getItem('wlc-theme') || 'dark');
+
+  await fetchMe();
+  await loadLinks();
+  checkUnseenNotifications();
+  setupGradientPreview();
+
+  /* navigation */
+  document.querySelectorAll('.nav-item[data-page]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      showPage(btn.dataset.page);
+      if(btn.dataset.page === 'badges' && currentUser) loadBadgesTab(currentUser);
+      if(btn.dataset.page === 'notifications') loadNotificationsPage();
+      if(btn.dataset.page === 'support') loadMyTickets();
+    });
+  });
+
+  /* sub-tabs */
+  document.querySelectorAll('.sub-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      var parent = tab.closest('.page');
+      parent.querySelectorAll('.sub-tab').forEach(function(t){ t.classList.remove('active'); });
+      parent.querySelectorAll('.sub-page').forEach(function(p){ p.classList.remove('active'); });
+      tab.classList.add('active');
+      var sp = document.getElementById('subtab-' + tab.dataset.subtab);
+      if(sp) sp.classList.add('active');
+    });
+  });
+
+  /* close modals via data-close */
+  document.querySelectorAll('[data-close]').forEach(function(btn){
+    btn.addEventListener('click', function(){ closeModal(btn.dataset.close); });
+  });
+  document.querySelectorAll('.modal-overlay').forEach(function(o){
+    o.addEventListener('click', function(e){ if(e.target === o) o.classList.remove('open'); });
+  });
+
+  /* theme */
+  document.getElementById('themeBtn').addEventListener('click', function(){
+    var curr = document.documentElement.getAttribute('data-theme');
+    setTheme(curr === 'dark' ? 'light' : 'dark');
+  });
+  document.getElementById('darkModeToggle').addEventListener('change', function(){
+    setTheme(this.checked ? 'dark' : 'light');
+  });
+
+  /* logout */
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('btnLogoutSettings').addEventListener('click', logout);
+
+  /* profile */
+  document.getElementById('btnSaveProfile').addEventListener('click', saveProfile);
+  document.getElementById('btnResetProfile').addEventListener('click', async function(){ await fetchMe(); flash('Reloaded', 'success'); });
+  document.getElementById('btnPreviewAvatar').addEventListener('click', previewAvatar);
+  document.getElementById('btnGoProfile').addEventListener('click', function(){ showPage('profile'); });
+  document.getElementById('nameEffect').addEventListener('change', onNameEffectChange);
+
+  /* range sliders */
+  document.getElementById('twSpeed').addEventListener('input', function(){ document.getElementById('twSpeedVal').textContent = this.value + 'ms'; });
+  document.getElementById('cardOpacity').addEventListener('input', function(){ document.getElementById('cardOpacityVal').textContent = this.value + '%'; });
+  document.getElementById('blurIntensity').addEventListener('input', function(){ document.getElementById('blurVal').textContent = this.value + 'px'; });
+  document.getElementById('cteText').addEventListener('input', function(){ document.getElementById('ctePreviewText').textContent = this.value || 'Click to Enter'; });
+
+  /* font preview */
+  document.getElementById('profileFont').addEventListener('change', function(){ updateFontPreview(this.value); });
+
+  /* CTE effect toggle */
+  document.getElementById('cteEffect').addEventListener('change', function(){ updateCteEffectUI(this.value); });
+
+  /* layout save buttons */
+  document.querySelectorAll('.layout-save-btn').forEach(function(btn){
+    btn.addEventListener('click', saveLayouts);
+  });
+
+  /* platform buttons */
+  document.querySelectorAll('.platform-btn[data-platform]').forEach(function(btn){
+    btn.addEventListener('click', function(){ openPlatformModal(btn.dataset.platform, btn.dataset.icon, btn.dataset.name); });
+  });
+  document.getElementById('btnCustomLink').addEventListener('click', function(){
+    document.getElementById('customTitle').value   = '';
+    document.getElementById('customUrl').value     = '';
+    document.getElementById('customIconUrl').value = '';
+    openModal('customLinkModal');
+  });
+
+  /* modal actions */
+  document.getElementById('btnSavePlatformLink').addEventListener('click', savePlatformLink);
+  document.getElementById('btnSaveCustomLink').addEventListener('click', saveCustomLink);
+  document.getElementById('btnUpdateLink').addEventListener('click', updateLink);
+});
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+var _seenNotifIds = JSON.parse(localStorage.getItem('wlc-seen-notifs') || '[]');
+
+async function loadNotificationsPage(){
+  var container = document.getElementById('notifPageContent');
+  container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text4)">Loading…</div>';
+  try{
+    var res  = await fetch('/api/notifications', {credentials:'include'});
+    var data = await res.json();
+    if(!data.success){ container.innerHTML='<div style="padding:40px;text-align:center;color:var(--text4)">Could not load notifications.</div>'; return; }
+    var notifs = data.notifications || [];
+    // Mark all as seen
+    var newIds = notifs.map(function(n){ return n.id; });
+    _seenNotifIds = newIds;
+    localStorage.setItem('wlc-seen-notifs', JSON.stringify(_seenNotifIds));
+    updateNotifBadge(0);
+
+    if(!notifs.length){
+      container.innerHTML='<div style="padding:40px;text-align:center;color:var(--text4)">No notifications yet.</div>'; return;
+    }
+    container.innerHTML = notifs.map(function(n){
+      return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:10px">'
+        +'<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px">'+escHtml(n.title)+'</div>'
+        +'<div style="font-size:13px;color:var(--text3);line-height:1.55;margin-bottom:6px">'+escHtml(n.message)+'</div>'
+        +'<div style="font-size:11px;color:var(--text5)">'+fmtDate(n.createdAt)+'</div>'
+        +'</div>';
+    }).join('');
+  }catch(e){ container.innerHTML='<div style="padding:40px;text-align:center;color:var(--text4)">Connection error.</div>'; }
+}
+
+function updateNotifBadge(count){
+  var badge = document.getElementById('notifBadge');
+  if(!badge) return;
+  if(count > 0){
+    badge.textContent = count > 9 ? '9+' : count;
+    badge.style.display = 'inline-flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+async function checkUnseenNotifications(){
+  try{
+    var res  = await fetch('/api/notifications', {credentials:'include'});
+    var data = await res.json();
+    if(!data.success) return;
+    var notifs = data.notifications || [];
+    var unseen = notifs.filter(function(n){ return !_seenNotifIds.includes(n.id); }).length;
+    updateNotifBadge(unseen);
+  }catch(e){}
+}
+
+function fmtDate(ts){
+  if(!ts) return '';
+  var d = ts._seconds ? new Date(ts._seconds*1000) : new Date(ts);
+  return d.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+}
+
+// ── Support Tickets ───────────────────────────────────────────────────────────
+var _currentTicketId = null;
+
+async function loadMyTickets(){
+  var container = document.getElementById('myTicketsList');
+  container.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text4)">Loading…</div>';
+  showTicketList();
+  try{
+    var res  = await fetch('/api/support/tickets', {credentials:'include'});
+    var data = await res.json();
+    if(!data.success){ container.innerHTML='<div style="padding:32px;text-align:center;color:var(--text4)">Could not load tickets.</div>'; return; }
+    var tickets = data.tickets || [];
+    if(!tickets.length){
+      container.innerHTML='<div style="padding:32px;text-align:center;color:var(--text4)">No tickets yet. Click "Create Ticket" to get help.</div>'; return;
+    }
+    container.innerHTML = tickets.map(function(t){
+      var statusColor = t.status==='open' ? 'var(--orange)' : 'var(--success)';
+      var borderColor = t.status==='open' ? 'var(--orange)' : 'var(--success)';
+      var preview     = (t.messages && t.messages.length) ? t.messages[t.messages.length-1].text : '—';
+      return '<div onclick=\'openTicketThread('+JSON.stringify(t)+')\' style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid '+borderColor+';border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .2s">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;gap:8px;flex-wrap:wrap">'
+        +'<span style="font-size:13px;font-weight:600;color:var(--text)">'+escHtml(t.subject||'No subject')+'</span>'
+        +'<div style="display:flex;gap:8px;align-items:center">'
+        +'<span style="font-size:11px;font-weight:600;color:'+statusColor+'">'+escHtml(t.status||'open')+'</span>'
+        +'<span style="font-size:11px;color:var(--text5)">'+fmtDate(t.createdAt)+'</span>'
+        +'</div></div>'
+        +'<div style="font-size:12px;color:var(--text4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(preview.substring(0,120))+'</div>'
+        +'</div>';
+    }).join('');
+  }catch(e){ container.innerHTML='<div style="padding:32px;text-align:center;color:var(--text4)">Connection error.</div>'; }
+}
+
+function showCreateTicket(){
+  document.getElementById('supportTicketList').style.display  = 'none';
+  document.getElementById('supportCreateView').style.display  = '';
+  document.getElementById('supportThreadView').style.display  = 'none';
+}
+function hideCreateTicket(){
+  document.getElementById('supportTicketList').style.display  = '';
+  document.getElementById('supportCreateView').style.display  = 'none';
+  document.getElementById('supportThreadView').style.display  = 'none';
+}
+function showTicketList(){
+  document.getElementById('supportTicketList').style.display  = '';
+  document.getElementById('supportCreateView').style.display  = 'none';
+  document.getElementById('supportThreadView').style.display  = 'none';
+}
+
+async function submitTicket(){
+  var subject = document.getElementById('ticketSubject').value.trim();
+  var message = document.getElementById('ticketMessage').value.trim();
+  if(!subject || !message){ flash('Subject and message are required.','error'); return; }
+  try{
+    var res  = await fetch('/api/support/tickets', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({subject, message})});
+    var data = await res.json();
+    if(data.success){
+      flash('Ticket submitted!','success');
+      document.getElementById('ticketSubject').value  = '';
+      document.getElementById('ticketMessage').value  = '';
+      hideCreateTicket();
+      loadMyTickets();
+    } else flash(data.message||'Error submitting ticket','error');
+  }catch(e){ flash('Connection error','error'); }
+}
+
+function openTicketThread(t){
+  _currentTicketId = t.id;
+  document.getElementById('threadSubject').textContent = t.subject || 'Support Ticket';
+  document.getElementById('threadMeta').textContent    = 'Opened ' + fmtDate(t.createdAt);
+  var statusPill = document.getElementById('threadStatusPill');
+  statusPill.textContent   = t.status || 'open';
+  statusPill.style.cssText = 'font-size:11px;font-weight:600;padding:2px 10px;border-radius:999px;background:'+(t.status==='open'?'var(--orange-light)':'rgba(34,200,122,0.1)')+';color:'+(t.status==='open'?'var(--orange)':'var(--success)')+';border:1px solid '+(t.status==='open'?'var(--orange-border)':'rgba(34,200,122,0.25)');
+  renderThreadMessages(t.messages || []);
+  // Hide reply area if closed
+  document.getElementById('threadReplyArea').style.display = t.status==='closed' ? 'none' : '';
+  document.getElementById('supportTicketList').style.display = 'none';
+  document.getElementById('supportCreateView').style.display = 'none';
+  document.getElementById('supportThreadView').style.display = '';
+}
+
+function renderThreadMessages(messages){
+  var container = document.getElementById('threadMessages');
+  if(!messages.length){ container.innerHTML='<div style="text-align:center;color:var(--text4);padding:20px">No messages yet.</div>'; return; }
+  container.innerHTML = messages.map(function(m){
+    var isAdmin = m.role === 'admin' || m.role === 'staffer' || m.role === 'owner';
+    return '<div style="display:flex;flex-direction:column;align-items:'+(isAdmin?'flex-end':'flex-start')+'">'
+      +'<div style="max-width:80%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.55;background:'+(isAdmin?'var(--orange-light)':'var(--bg4)')+';border:1px solid '+(isAdmin?'var(--orange-border)':'var(--border)')+'">'+escHtml(m.text)+'</div>'
+      +'<div style="font-size:10px;color:var(--text5);margin-top:3px">'+escHtml(m.senderName||m.role||'user')+' · '+fmtDate(m.createdAt)+'</div>'
+      +'</div>';
+  }).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendTicketMessage(){
+  if(!_currentTicketId) return;
+  var text = document.getElementById('threadReplyText').value.trim();
+  if(!text){ flash('Write a message first.','error'); return; }
+  try{
+    var res  = await fetch('/api/support/tickets/'+_currentTicketId+'/message', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({text})});
+    var data = await res.json();
+    if(data.success){
+      document.getElementById('threadReplyText').value = '';
+      renderThreadMessages(data.messages || []);
+    } else flash(data.message||'Error sending message','error');
+  }catch(e){ flash('Connection error','error'); }
+}
+
+</script>
+</body>
+</html>

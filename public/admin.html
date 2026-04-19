@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Admin Panel — wlc.lol</title>
+<link rel="icon" href="https://i.imgur.com/kj1LSyK.png" type="image/png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09080a;--bg2:#0e0d10;--bg3:#111013;--bg4:#18161b;--bg5:#1f1d23;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --text:#f5f0ee;--text2:#c8c0bc;--text3:#8a7e7a;--text4:#52463f;--text5:#3a3038;
+  --orange:#ff6a1a;--orange2:#ff8c4a;--orange-light:rgba(255,106,26,0.15);--orange-border:rgba(255,106,26,0.3);
+  --success:#22c87a;--danger:#ff4757;--danger-bg:rgba(255,71,87,0.1);--danger-border:rgba(255,71,87,0.25);
+  --info:#3b82f6;--info-bg:rgba(59,130,246,0.1);
+  --radius:14px;
+}
+[data-theme="light"]{
+  --bg:#f5f4f6;--bg2:#eeedf0;--bg3:#ffffff;--bg4:#f0eff2;--bg5:#e8e7ea;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.13);
+  --text:#1a1820;--text2:#3d3848;--text3:#7a6f78;--text4:#a09aae;--text5:#c8c2d4;
+}
+html,body{height:100%;font-family:'Inter',sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+#loginScreen{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
+#loginBox{background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(0,0,0,0.35)}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px;justify-content:center}
+.login-logo img{width:36px;height:36px;border-radius:9px}
+.login-logo-text{font-size:18px;font-weight:900;color:var(--text);letter-spacing:-0.02em}
+.login-logo-text span{color:var(--orange)}
+.login-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--text3);text-align:center;margin-bottom:28px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3);margin-bottom:6px}
+.field input{width:100%;padding:11px 14px;background:var(--bg);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--orange)}
+.btn-full{width:100%;padding:12px;background:var(--orange);border:none;border-radius:10px;color:#09080a;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;margin-top:4px}
+.btn-full:hover{background:var(--orange2);transform:translateY(-1px)}
+.btn-full:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.login-err{background:var(--danger-bg);border:1px solid var(--danger-border);color:var(--danger);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:16px;display:none}
+#appScreen{flex:1;display:none;overflow:hidden;height:100vh}
+.layout{display:flex;height:100%}
+.sidebar{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.sb-header{padding:18px 16px 12px;border-bottom:1px solid var(--border)}
+.sb-logo{display:flex;align-items:center;gap:8px}
+.sb-logo img{width:28px;height:28px;border-radius:7px}
+.sb-logo-text{font-size:14px;font-weight:900;letter-spacing:-0.01em}
+.sb-logo-text span{color:var(--orange)}
+.sb-badge{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;margin-left:4px;text-transform:uppercase;letter-spacing:0.05em}
+.sb-nav{padding:10px 8px;flex:1}
+.sb-section{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text4);padding:10px 8px 4px}
+.nav-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;border:none;background:none;color:var(--text3);font-size:13px;font-weight:500;border-radius:9px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;text-align:left}
+.nav-btn:hover{background:var(--bg4);color:var(--text)}
+.nav-btn.active{background:var(--orange-light);color:var(--orange);border:1px solid var(--orange-border)}
+.nav-btn svg{flex-shrink:0;opacity:.8}
+.sb-footer{padding:12px 8px;border-top:1px solid var(--border)}
+.sb-user{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;background:var(--bg4)}
+.sb-avatar{width:30px;height:30px;border-radius:50%;background:var(--bg5);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--orange);overflow:hidden;flex-shrink:0}
+.sb-avatar img{width:100%;height:100%;object-fit:cover}
+.sb-user-info{flex:1;min-width:0}
+.sb-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-role{font-size:10px;color:var(--orange);font-weight:600;text-transform:uppercase}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:700;color:var(--text)}
+.topbar-actions{display:flex;align-items:center;gap:8px}
+.btn-sm{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;border:1px solid var(--border2);background:var(--bg4);color:var(--text3)}
+.btn-sm:hover{background:var(--bg5);color:var(--text)}
+.btn-danger{border-color:var(--danger-border);color:var(--danger);background:var(--danger-bg)}
+.btn-danger:hover{background:rgba(255,71,87,0.2)}
+.btn-orange{background:var(--orange);color:#09080a;border-color:var(--orange)}
+.btn-orange:hover{background:var(--orange2)}
+.content{flex:1;overflow-y:auto;padding:24px}
+.page{display:none}
+.page.active{display:block}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:28px}
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.stat-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);margin-bottom:8px}
+.stat-val{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-0.02em}
+.stat-val.orange{color:var(--orange)}
+.stat-sub{font-size:11px;color:var(--text4);margin-top:4px}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+.section-title{font-size:15px;font-weight:700;color:var(--text)}
+.search-box{padding:8px 12px;background:var(--bg4);border:1px solid var(--border2);border-radius:9px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;width:220px;transition:border-color .2s}
+.search-box:focus{border-color:var(--orange)}
+.table-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--bg4)}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);white-space:nowrap}
+td{padding:11px 14px;border-top:1px solid var(--border);font-size:13px;color:var(--text2)}
+tr:hover td{background:var(--bg4)}
+.user-cell{display:flex;align-items:center;gap:10px}
+.u-avatar{width:32px;height:32px;border-radius:50%;background:var(--bg5);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--orange);overflow:hidden;flex-shrink:0}
+.u-avatar img{width:100%;height:100%;object-fit:cover}
+.u-name{font-weight:600;color:var(--text);font-size:13px}
+.u-email{font-size:11px;color:var(--text3)}
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
+.pill-green{background:rgba(34,200,122,0.12);color:var(--success);border:1px solid rgba(34,200,122,0.25)}
+.pill-orange{background:var(--orange-light);color:var(--orange);border:1px solid var(--orange-border)}
+.pill-blue{background:var(--info-bg);color:var(--info);border:1px solid rgba(59,130,246,0.25)}
+.pill-red{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.pill-purple{background:rgba(139,92,246,0.12);color:#a78bfa;border:1px solid rgba(139,92,246,0.25)}
+.pill-gray{background:var(--bg5);color:var(--text3);border:1px solid var(--border2)}
+.badge-chips{display:flex;flex-wrap:wrap;gap:3px}
+.badge-chip{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;background:var(--bg5);border:1px solid var(--border2);border-radius:999px;font-size:10px;color:var(--text3)}
+.badge-chip img{width:12px;height:12px;object-fit:contain}
+.action-btns{display:flex;gap:5px}
+.tbl-btn{padding:5px 11px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;border:1px solid var(--border2);background:var(--bg5);color:var(--text3);transition:all .15s;white-space:nowrap}
+.tbl-btn:hover{background:var(--bg4);color:var(--text)}
+.tbl-btn.edit{border-color:var(--orange-border);color:var(--orange);background:var(--orange-light)}
+.tbl-btn.del{border-color:var(--danger-border);color:var(--danger);background:var(--danger-bg)}
+.empty-row td{text-align:center;color:var(--text4);padding:32px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg3);border:1px solid var(--border2);border-radius:18px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;position:relative}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-size:16px;font-weight:700;color:var(--text)}
+.modal-close{width:28px;height:28px;border-radius:7px;border:none;background:var(--bg4);color:var(--text3);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--bg5);color:var(--text)}
+.mfield{margin-bottom:14px}
+.mfield label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3);margin-bottom:5px}
+.mfield input,.mfield select,.mfield textarea{width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border2);border-radius:9px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.mfield textarea{resize:vertical;min-height:80px;line-height:1.5}
+.mfield input:focus,.mfield select:focus,.mfield textarea:focus{border-color:var(--orange)}
+.mfield .hint{font-size:11px;color:var(--text4);margin-top:4px}
+.badge-toggle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:6px}
+.badge-toggle{display:flex;align-items:center;gap:7px;padding:8px 10px;background:var(--bg4);border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all .15s;user-select:none}
+.badge-toggle:hover{border-color:var(--border2)}
+.badge-toggle.on{background:var(--orange-light);border-color:var(--orange-border)}
+.badge-toggle.disabled-badge{opacity:0.35;pointer-events:none}
+.badge-toggle img{width:18px;height:18px;object-fit:contain;flex-shrink:0}
+.badge-toggle span{font-size:11px;font-weight:600;color:var(--text3)}
+.badge-toggle.on span{color:var(--orange)}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.divider{height:1px;background:var(--border);margin:16px 0}
+.flash-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:6px}
+.flash{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;animation:slideUp .2s ease;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.flash-ok{background:#14532d;border:1px solid #22c55e;color:#86efac}
+.flash-err{background:#450a0a;border:1px solid #ef4444;color:#fca5a5}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.2);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-state{padding:40px;text-align:center;color:var(--text3)}
+/* ── Ticket styles ── */
+.ticket-list{display:flex;flex-direction:column;gap:10px}
+.ticket-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px 18px;cursor:pointer;transition:border-color .2s}
+.ticket-card:hover{border-color:var(--border2)}
+.ticket-card.open-ticket{border-left:3px solid var(--orange)}
+.ticket-card.closed-ticket{border-left:3px solid var(--success)}
+.ticket-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:8px;flex-wrap:wrap}
+.ticket-subject{font-size:13px;font-weight:600;color:var(--text)}
+.ticket-meta{font-size:11px;color:var(--text4)}
+.ticket-preview{font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ticket-thread{display:flex;flex-direction:column;gap:10px;max-height:380px;overflow-y:auto;margin-bottom:14px;padding-right:4px}
+.msg-bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.55;max-width:85%}
+.msg-bubble.from-user{background:var(--bg4);border:1px solid var(--border);align-self:flex-start}
+.msg-bubble.from-admin{background:var(--orange-light);border:1px solid var(--orange-border);align-self:flex-end}
+.msg-meta{font-size:10px;color:var(--text4);margin-top:4px}
+.reply-area{display:flex;gap:8px;align-items:flex-end}
+.reply-area textarea{flex:1;padding:9px 12px;background:var(--bg);border:1px solid var(--border2);border-radius:9px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;resize:none;height:70px;transition:border-color .2s}
+.reply-area textarea:focus{border-color:var(--orange)}
+/* ── Notification styles ── */
+.notif-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.notif-item{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.notif-body{flex:1}
+.notif-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.notif-msg{font-size:12px;color:var(--text3);line-height:1.5}
+.notif-date{font-size:11px;color:var(--text5);margin-top:4px}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  th:nth-child(n+4),td:nth-child(n+4){display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div id="loginBox">
+    <div class="login-logo">
+      <img src="https://i.imgur.com/kj1LSyK.png" alt="wlc.lol">
+      <span class="login-logo-text">wlc<span>.</span>lol</span>
+    </div>
+    <div class="login-title">Admin Panel</div>
+    <div class="login-sub">Sign in with your admin or staff account.</div>
+    <div class="login-err" id="loginErr"></div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="admin@example.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-full" id="loginBtn" onclick="doLogin()">
+      <span id="loginBtnText">Sign In</span>
+    </button>
+    <div style="text-align:center;margin-top:14px">
+      <a href="/dashboard" style="font-size:12px;color:var(--text3);text-decoration:none">← Back to Dashboard</a>
+    </div>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="appScreen">
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sb-header">
+        <div class="sb-logo">
+          <img src="https://i.imgur.com/kj1LSyK.png" alt="wlc.lol">
+          <span class="sb-logo-text">wlc<span>.</span>lol</span>
+          <span class="sb-badge" id="sbBadgeLabel">Admin</span>
+        </div>
+      </div>
+      <div class="sb-nav">
+        <div class="sb-section">Main</div>
+        <button class="nav-btn active" data-page="overview" onclick="showPage('overview')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+          Overview
+        </button>
+        <div class="sb-section">Management</div>
+        <button class="nav-btn" data-page="users" onclick="showPage('users')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Users
+        </button>
+        <button class="nav-btn" data-page="badges" onclick="showPage('badges')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
+          Badges
+        </button>
+        <button class="nav-btn" data-page="tickets" onclick="showPage('tickets')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Support Tickets
+        </button>
+        <!-- Notifications: owner only -->
+        <button class="nav-btn owner-only" data-page="notifications" onclick="showPage('notifications')" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          Notifications
+        </button>
+      </div>
+      <div class="sb-footer">
+        <div class="sb-user">
+          <div class="sb-avatar" id="sbAvatar">?</div>
+          <div class="sb-user-info">
+            <div class="sb-name" id="sbName">—</div>
+            <div class="sb-role" id="sbRole">—</div>
+          </div>
+        </div>
+        <button class="nav-btn" style="margin-top:6px;color:var(--danger)" onclick="doLogout()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title" id="pageTitle">Overview</div>
+        <div class="topbar-actions">
+          <button class="btn-sm" onclick="refreshCurrentPage()">↺ Refresh</button>
+          <a href="/dashboard" style="text-decoration:none"><button class="btn-sm">← Dashboard</button></a>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- OVERVIEW PAGE -->
+        <div class="page active" id="page-overview">
+          <div class="stats-grid" id="statsGrid">
+            <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-val orange" id="st-users">—</div><div class="stat-sub">registered accounts</div></div>
+            <div class="stat-card"><div class="stat-label">Total Page Views</div><div class="stat-val" id="st-views">—</div><div class="stat-sub">across all profiles</div></div>
+            <div class="stat-card"><div class="stat-label">Total Links</div><div class="stat-val" id="st-links">—</div><div class="stat-sub">created by users</div></div>
+            <div class="stat-card"><div class="stat-label">Pro Users</div><div class="stat-val" id="st-pro">—</div><div class="stat-sub">premium accounts</div></div>
+            <div class="stat-card"><div class="stat-label">Verified Users</div><div class="stat-val" id="st-verified">—</div><div class="stat-sub">email verified</div></div>
+          </div>
+          <div class="section-hdr">
+            <div class="section-title">Recent Registrations</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>User</th><th>Role</th><th>Views</th><th>Joined</th><th>Actions</th></tr></thead>
+              <tbody id="recentUsersBody"><tr class="empty-row"><td colspan="5"><span class="spinner"></span></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- USERS PAGE -->
+        <div class="page" id="page-users">
+          <div class="section-hdr">
+            <div class="section-title">All Members</div>
+            <input class="search-box" type="text" id="userSearch" placeholder="Search by username, email…" oninput="filterUsers()">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>User</th><th>Email</th><th>Role</th><th>Badges</th><th>Views</th><th>Links</th><th>Joined</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersBody"><tr class="empty-row"><td colspan="8"><span class="spinner"></span></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- BADGES PAGE -->
+        <div class="page" id="page-badges">
+          <div class="section-hdr" style="margin-bottom:20px">
+            <div class="section-title">Badge Management</div>
+            <input class="search-box" type="text" id="badgeUserSearch" placeholder="Search user…" oninput="filterBadgeUsers()">
+          </div>
+          <p style="color:var(--text3);font-size:13px;margin-bottom:18px">Select a user to manage their badges. Badges assigned here will appear in the user's dashboard badge tab.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>User</th><th>Current Badges</th><th>Actions</th></tr></thead>
+              <tbody id="badgeUsersBody"><tr class="empty-row"><td colspan="3"><span class="spinner"></span></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TICKETS PAGE -->
+        <div class="page" id="page-tickets">
+          <div class="section-hdr" style="margin-bottom:16px">
+            <div class="section-title">Support Tickets</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select id="ticketFilter" class="search-box" style="width:130px" onchange="filterTickets()">
+                <option value="all">All</option>
+                <option value="open">Open</option>
+                <option value="closed">Closed</option>
+              </select>
+              <input class="search-box" type="text" id="ticketSearch" placeholder="Search…" oninput="filterTickets()">
+            </div>
+          </div>
+          <div id="ticketList" class="ticket-list">
+            <div class="loading-state"><span class="spinner"></span></div>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS PAGE (owner only) -->
+        <div class="page" id="page-notifications">
+          <div class="section-hdr" style="margin-bottom:16px">
+            <div class="section-title">Global Notifications</div>
+            <button class="btn-sm btn-orange" onclick="openModal('newNotifModal')">+ New Notification</button>
+          </div>
+          <p style="color:var(--text3);font-size:13px;margin-bottom:18px">Notifications will appear to all users in their dashboard notification panel.</p>
+          <div id="notifList" class="notif-list">
+            <div class="loading-state"><span class="spinner"></span></div>
+          </div>
+        </div>
+
+      </div><!-- /content -->
+    </div><!-- /main -->
+  </div>
+</div>
+
+<!-- EDIT USER MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit User</div>
+      <button class="modal-close" onclick="closeModal('editModal')">×</button>
+    </div>
+    <input type="hidden" id="editUid">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="mfield">
+        <label>Username</label>
+        <input type="text" id="editUsername" placeholder="new_username">
+      </div>
+      <div class="mfield">
+        <label>View Count</label>
+        <input type="number" id="editViews" min="0" placeholder="0">
+      </div>
+    </div>
+    <div class="mfield" id="editPasswordField">
+      <label>New Password <span style="color:var(--text4);font-weight:400;text-transform:none">(leave blank to keep current)</span></label>
+      <input type="password" id="editPassword" placeholder="Min. 8 characters">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div class="mfield">
+        <label>Role</label>
+        <select id="editRole">
+          <option value="user">User</option>
+          <option value="staffer">Staffer</option>
+          <option value="admin">Admin</option>
+          <option value="owner">Owner</option>
+        </select>
+        <div class="hint" id="editRoleHint"></div>
+      </div>
+      <div class="mfield">
+        <label>Pro</label>
+        <select id="editPro">
+          <option value="false">No</option>
+          <option value="true">Yes</option>
+        </select>
+      </div>
+      <div class="mfield">
+        <label>Verified</label>
+        <select id="editVerified">
+          <option value="false">No</option>
+          <option value="true">Yes</option>
+        </select>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="mfield">
+      <label>Assigned Badges</label>
+      <div class="badge-toggle-grid" id="editBadgeGrid"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-danger" id="deleteUserBtn" onclick="deleteUser()">Delete Account</button>
+      <button class="btn-sm" onclick="closeModal('editModal')">Cancel</button>
+      <button class="btn-sm btn-orange" onclick="saveEditUser()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- BADGE MODAL -->
+<div class="modal-overlay" id="badgeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Manage Badges — <span id="badgeModalName"></span></div>
+      <button class="modal-close" onclick="closeModal('badgeModal')">×</button>
+    </div>
+    <input type="hidden" id="badgeModalUid">
+    <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Toggle badges to grant or revoke them. Changes save immediately.</p>
+    <div class="badge-toggle-grid" id="badgeModalGrid"></div>
+    <div class="modal-footer">
+      <button class="btn-sm" onclick="closeModal('badgeModal')">Cancel</button>
+      <button class="btn-sm btn-orange" onclick="saveBadgeModal()">Save Badges</button>
+    </div>
+  </div>
+</div>
+
+<!-- TICKET THREAD MODAL -->
+<div class="modal-overlay" id="ticketModal">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="ticketModalTitle">Ticket</div>
+        <div style="font-size:12px;color:var(--text4);margin-top:2px" id="ticketModalMeta"></div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn-sm" id="ticketToggleBtn" onclick="toggleTicketStatus()">Close Ticket</button>
+        <button class="modal-close" onclick="closeModal('ticketModal')">×</button>
+      </div>
+    </div>
+    <input type="hidden" id="ticketModalId">
+    <div class="ticket-thread" id="ticketThread"></div>
+    <div class="reply-area">
+      <textarea id="replyText" placeholder="Write a reply…"></textarea>
+      <button class="btn-sm btn-orange" onclick="sendAdminReply()" style="height:70px;padding:0 16px">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW NOTIFICATION MODAL (owner only) -->
+<div class="modal-overlay" id="newNotifModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-title">New Notification</div>
+      <button class="modal-close" onclick="closeModal('newNotifModal')">×</button>
+    </div>
+    <div class="mfield">
+      <label>Title</label>
+      <input type="text" id="notifTitle" placeholder="e.g. New Feature Released!">
+    </div>
+    <div class="mfield">
+      <label>Message</label>
+      <textarea id="notifMessage" placeholder="Write the notification message…" style="min-height:90px"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm" onclick="closeModal('newNotifModal')">Cancel</button>
+      <button class="btn-sm btn-orange" onclick="createNotification()">Send to All Users</button>
+    </div>
+  </div>
+</div>
+
+<div class="flash-wrap" id="flashWrap"></div>
+
+<script>
+'use strict';
+
+const ALL_BADGES = [
+  {id:'booster',    label:'Booster'},
+  {id:'bug hunter', label:'Bug Hunter'},
+  {id:'creator',    label:'Creator'},
+  {id:'famous',     label:'Famous'},
+  {id:'friend',     label:'Friend'},
+  {id:'gifter',     label:'Gifter'},
+  {id:'og',         label:'OG'},
+  {id:'owner',      label:'Owner'},
+  {id:'premium',    label:'Premium'},
+  {id:'staff',      label:'Staff'},
+  {id:'verified',   label:'Verified'},
+];
+
+// Badges that staffers cannot assign
+const STAFFER_RESTRICTED_BADGES = ['owner','staff','bug hunter','friend'];
+// Roles that staffers cannot assign
+const STAFFER_RESTRICTED_ROLES  = ['owner','staffer'];
+
+let currentAdmin = null;
+let allUsers     = [];
+let allTickets   = [];
+let currentPage  = 'overview';
+
+function isOwner()  { return currentAdmin && currentAdmin.role === 'owner'; }
+function isStaffer(){ return currentAdmin && currentAdmin.role === 'staffer'; }
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtNum(n){
+  if(n >= 1000000) return (n/1000000).toFixed(1).replace(/\.0$/,'')+'M';
+  if(n >= 1000)    return (n/1000).toFixed(1).replace(/\.0$/,'')+'K';
+  return String(n);
+}
+function fmtDate(ts){
+  if(!ts) return '—';
+  const d = ts._seconds ? new Date(ts._seconds*1000) : new Date(ts);
+  return d.toLocaleDateString('en-US',{year:'2-digit',month:'short',day:'numeric'});
+}
+function fmtDateTime(ts){
+  if(!ts) return '—';
+  const d = ts._seconds ? new Date(ts._seconds*1000) : new Date(ts);
+  return d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function rolePill(role){
+  const map={owner:'pill-red',admin:'pill-orange',staffer:'pill-purple',user:'pill-gray'};
+  return `<span class="pill ${map[role]||'pill-gray'}">${escHtml(role||'user')}</span>`;
+}
+function badgeChips(badges){
+  if(!badges||!badges.length) return '<span style="color:var(--text4);font-size:11px">None</span>';
+  return '<div class="badge-chips">'+badges.map(b=>{
+    const f=encodeURIComponent(b)+'.png';
+    const l=(ALL_BADGES.find(x=>x.id===b)||{label:b}).label;
+    return `<span class="badge-chip"><img src="/assets/${f}" alt="${escHtml(l)}">${escHtml(l)}</span>`;
+  }).join('')+'</div>';
+}
+function userAvatarHtml(u){
+  const letter=(u.username||'?')[0].toUpperCase();
+  if(u.avatarUrl) return `<div class="u-avatar"><img src="${escHtml(u.avatarUrl)}" onerror="this.parentElement.textContent='${letter}'"></div>`;
+  return `<div class="u-avatar">${letter}</div>`;
+}
+function userCell(u){
+  return `<div class="user-cell">${userAvatarHtml(u)}<div><div class="u-name">${escHtml(u.displayName||u.username)}</div><div class="u-email">@${escHtml(u.username)}</div></div></div>`;
+}
+
+// ── Flash ─────────────────────────────────────────────────────────────────────
+function flash(msg, type='ok'){
+  const wrap=document.getElementById('flashWrap');
+  const el=document.createElement('div');
+  el.className='flash flash-'+(type==='error'?'err':'ok');
+  el.textContent=msg;
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(),3500);
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', e=>{
+  if(e.target.classList.contains('modal-overlay')) e.target.classList.remove('open');
+});
+
+// ── Nav ──────────────────────────────────────────────────────────────────────
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const page=document.getElementById('page-'+id);
+  if(page) page.classList.add('active');
+  const btn=document.querySelector(`.nav-btn[data-page="${id}"]`);
+  if(btn) btn.classList.add('active');
+  const titles={overview:'Overview',users:'All Members',badges:'Badge Management',tickets:'Support Tickets',notifications:'Global Notifications'};
+  document.getElementById('pageTitle').textContent=titles[id]||id;
+  currentPage=id;
+  if(id==='tickets') loadTickets();
+  if(id==='notifications') loadNotifications();
+}
+
+function refreshCurrentPage(){
+  if(currentPage==='overview') loadOverview();
+  else if(currentPage==='users') loadUsers();
+  else if(currentPage==='badges') loadBadgeUsers();
+  else if(currentPage==='tickets') loadTickets();
+  else if(currentPage==='notifications') loadNotifications();
+}
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+async function doLogin(){
+  const btn=document.getElementById('loginBtn');
+  const err=document.getElementById('loginErr');
+  const email=document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pass=document.getElementById('loginPass').value;
+  if(!email||!pass){ showErr('Enter email and password.'); return; }
+  btn.disabled=true;
+  document.getElementById('loginBtnText').innerHTML='<span class="spinner"></span>';
+  err.style.display='none';
+  try{
+    const res=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({email,password:pass})});
+    const data=await res.json();
+    if(!data.success){ showErr(data.message||'Invalid credentials'); return; }
+    const meRes=await fetch('/api/auth/me',{credentials:'include'});
+    const me=await meRes.json();
+    if(!me.success){ showErr('Could not verify account.'); return; }
+    const role=me.user.role;
+    if(role!=='admin'&&role!=='owner'&&role!=='staffer'){
+      showErr('Access denied. Admin or Staffer role required.');
+      await fetch('/api/auth/logout',{method:'POST',credentials:'include'});
+      return;
+    }
+    currentAdmin=me.user;
+    enterApp();
+  }catch(e){ showErr('Connection error. Please try again.'); }
+  finally{ btn.disabled=false; document.getElementById('loginBtnText').textContent='Sign In'; }
+}
+function showErr(msg){ const el=document.getElementById('loginErr'); el.textContent=msg; el.style.display='block'; }
+
+async function checkExistingSession(){
+  try{
+    const res=await fetch('/api/auth/me',{credentials:'include'});
+    const data=await res.json();
+    const role=data.user&&data.user.role;
+    if(data.success&&(role==='admin'||role==='owner'||role==='staffer')){
+      currentAdmin=data.user;
+      enterApp();
+    }
+  }catch(e){}
+}
+
+function enterApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+
+  document.getElementById('sbName').textContent=currentAdmin.displayName||currentAdmin.username;
+  document.getElementById('sbRole').textContent=(currentAdmin.role||'admin').toUpperCase();
+  const roleLabel = currentAdmin.role==='staffer' ? 'Staff' : 'Admin';
+  document.getElementById('sbBadgeLabel').textContent=roleLabel;
+  const av=document.getElementById('sbAvatar');
+  if(currentAdmin.avatarUrl) av.innerHTML=`<img src="${escHtml(currentAdmin.avatarUrl)}">`;
+  else av.textContent=(currentAdmin.username||'?')[0].toUpperCase();
+
+  // Show/hide owner-only nav items
+  document.querySelectorAll('.owner-only').forEach(el=>{
+    el.style.display = isOwner() ? '' : 'none';
+  });
+
+  loadOverview();
+  loadUsers();
+  loadBadgeUsers();
+}
+
+async function doLogout(){
+  await fetch('/api/auth/logout',{method:'POST',credentials:'include'});
+  window.location.href='/login';
+}
+
+document.getElementById('loginPass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+
+// ── Overview ──────────────────────────────────────────────────────────────────
+async function loadOverview(){
+  try{
+    const res=await fetch('/api/admin/stats',{credentials:'include'});
+    const data=await res.json();
+    if(!data.success){ flash('Failed to load stats','error'); return; }
+    const s=data.stats;
+    document.getElementById('st-users').textContent    = fmtNum(s.totalUsers);
+    document.getElementById('st-views').textContent    = fmtNum(s.totalViews);
+    document.getElementById('st-links').textContent    = fmtNum(s.totalLinks);
+    document.getElementById('st-pro').textContent      = fmtNum(s.proUsers);
+    document.getElementById('st-verified').textContent = fmtNum(s.verifiedUsers);
+  }catch(e){ flash('Error loading stats','error'); }
+
+  const tbody=document.getElementById('recentUsersBody');
+  try{
+    const res=await fetch('/api/admin/users?limit=10',{credentials:'include'});
+    const data=await res.json();
+    if(!data.success||!data.users.length){
+      tbody.innerHTML='<tr class="empty-row"><td colspan="5">No users found.</td></tr>'; return;
+    }
+    tbody.innerHTML=data.users.slice(0,10).map(u=>`
+      <tr>
+        <td>${userCell(u)}</td>
+        <td>${rolePill(u.role)}</td>
+        <td>${fmtNum(u.viewCount)}</td>
+        <td>${fmtDate(u.createdAt)}</td>
+        <td><button class="tbl-btn edit" onclick='openEditModal(${JSON.stringify(u)})'>Edit</button></td>
+      </tr>`).join('');
+  }catch(e){ tbody.innerHTML='<tr class="empty-row"><td colspan="5">Error loading users.</td></tr>'; }
+}
+
+// ── Users ─────────────────────────────────────────────────────────────────────
+async function loadUsers(){
+  const tbody=document.getElementById('usersBody');
+  try{
+    const res=await fetch('/api/admin/users?limit=200',{credentials:'include'});
+    const data=await res.json();
+    if(!data.success){ tbody.innerHTML='<tr class="empty-row"><td colspan="8">Error loading users.</td></tr>'; return; }
+    allUsers=data.users;
+    renderUsersTable(allUsers);
+  }catch(e){ tbody.innerHTML='<tr class="empty-row"><td colspan="8">Connection error.</td></tr>'; }
+}
+
+function renderUsersTable(users){
+  const tbody=document.getElementById('usersBody');
+  if(!users.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="8">No users found.</td></tr>'; return; }
+  tbody.innerHTML=users.map(u=>`
+    <tr>
+      <td>${userCell(u)}</td>
+      <td style="font-size:12px;color:var(--text3)">${escHtml(u.email||'')}</td>
+      <td>${rolePill(u.role)}</td>
+      <td>${badgeChips(u.badges)}</td>
+      <td>${fmtNum(u.viewCount)}</td>
+      <td>${u.linkCount||0}</td>
+      <td>${fmtDate(u.createdAt)}</td>
+      <td>
+        <div class="action-btns">
+          <button class="tbl-btn edit" onclick='openEditModal(${JSON.stringify(u)})'>Edit</button>
+          ${!isStaffer() ? `<button class="tbl-btn del" onclick='confirmDelete("${escHtml(u.uid)}","${escHtml(u.username)}")'>Del</button>` : ''}
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function filterUsers(){
+  const q=document.getElementById('userSearch').value.toLowerCase();
+  if(!q){ renderUsersTable(allUsers); return; }
+  renderUsersTable(allUsers.filter(u=>
+    u.username.toLowerCase().includes(q)||
+    (u.email||'').toLowerCase().includes(q)||
+    (u.displayName||'').toLowerCase().includes(q)
+  ));
+}
+
+// ── Edit user modal ───────────────────────────────────────────────────────────
+function openEditModal(u){
+  document.getElementById('editUid').value      = u.uid;
+  document.getElementById('editUsername').value = u.username;
+  document.getElementById('editViews').value    = u.viewCount||0;
+  document.getElementById('editPassword').value = '';
+  document.getElementById('editPro').value      = String(u.isPro||false);
+  document.getElementById('editVerified').value = String(u.isVerified||false);
+
+  // Staffer restrictions
+  const pwField    = document.getElementById('editPasswordField');
+  const deleteBtn  = document.getElementById('deleteUserBtn');
+  const roleSelect = document.getElementById('editRole');
+  const roleHint   = document.getElementById('editRoleHint');
+
+  if(isStaffer()){
+    pwField.style.display   = 'none';   // cannot change password
+    deleteBtn.style.display = 'none';   // cannot delete
+    // Remove restricted roles from select
+    roleSelect.innerHTML = `
+      <option value="user">User</option>
+      <option value="admin">Admin</option>`;
+    roleHint.textContent = 'Staffers cannot assign Owner or Staffer roles.';
+  } else {
+    pwField.style.display   = '';
+    deleteBtn.style.display = '';
+    roleSelect.innerHTML = `
+      <option value="user">User</option>
+      <option value="staffer">Staffer</option>
+      <option value="admin">Admin</option>
+      <option value="owner">Owner</option>`;
+    roleHint.textContent = isOwner() ? '' : 'Only Owner can assign Owner/Staffer roles.';
+    if(!isOwner()){
+      // Non-owner admins: disable owner & staffer options
+      Array.from(roleSelect.options).forEach(o=>{
+        if(o.value==='owner'||o.value==='staffer') o.disabled=true;
+      });
+    }
+  }
+  roleSelect.value = u.role||'user';
+
+  // Badge toggles
+  const grid  = document.getElementById('editBadgeGrid');
+  const owned = u.badges||[];
+  grid.innerHTML=ALL_BADGES.map(b=>{
+    const on       = owned.includes(b.id);
+    const restricted = isStaffer() && STAFFER_RESTRICTED_BADGES.includes(b.id);
+    const f        = encodeURIComponent(b.id)+'.png';
+    return `<div class="badge-toggle${on?' on':''}${restricted?' disabled-badge':''}" data-bid="${escHtml(b.id)}" onclick="${restricted?'':'toggleEditBadge(this)'}">
+      <img src="/assets/${f}" alt="${escHtml(b.label)}" onerror="this.style.opacity='0.3'">
+      <span>${escHtml(b.label)}</span>
+    </div>`;
+  }).join('');
+
+  openModal('editModal');
+}
+
+function toggleEditBadge(el){ el.classList.toggle('on'); el.querySelector('span').style.color=el.classList.contains('on')?'var(--orange)':''; }
+
+async function saveEditUser(){
+  const uid=document.getElementById('editUid').value;
+  const body={};
+  const username=document.getElementById('editUsername').value.trim();
+  if(username) body.username=username;
+  body.viewCount  = parseInt(document.getElementById('editViews').value)||0;
+  body.isPro      = document.getElementById('editPro').value==='true';
+  body.isVerified = document.getElementById('editVerified').value==='true';
+  body.role       = document.getElementById('editRole').value;
+
+  // Staffer checks
+  if(isStaffer()){
+    if(STAFFER_RESTRICTED_ROLES.includes(body.role)){ flash('Staffers cannot assign this role','error'); return; }
+  }
+
+  if(!isStaffer()){
+    const pw=document.getElementById('editPassword').value;
+    if(pw) body.newPassword=pw;
+  }
+
+  body.badges=[];
+  document.querySelectorAll('#editBadgeGrid .badge-toggle.on').forEach(el=>{ body.badges.push(el.dataset.bid); });
+
+  // Filter out restricted badges if staffer
+  if(isStaffer()){
+    body.badges=body.badges.filter(b=>!STAFFER_RESTRICTED_BADGES.includes(b));
+  }
+
+  try{
+    const res=await fetch('/api/admin/users/'+uid,{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(body)});
+    const data=await res.json();
+    if(data.success){ flash('User updated!'); closeModal('editModal'); loadUsers(); loadBadgeUsers(); }
+    else flash(data.message||'Error updating user','error');
+  }catch(e){ flash('Connection error','error'); }
+}
+
+async function deleteUser(){
+  if(isStaffer()){ flash('Staffers cannot delete accounts','error'); return; }
+  const uid=document.getElementById('editUid').value;
+  const username=document.getElementById('editUsername').value;
+  if(!confirm(`Permanently delete @${username}? This cannot be undone.`)) return;
+  try{
+    const res=await fetch('/api/admin/users/'+uid,{method:'DELETE',credentials:'include'});
+    const data=await res.json();
+    if(data.success){ flash('Account deleted'); closeModal('editModal'); loadUsers(); }
+    else flash(data.message||'Error deleting user','error');
+  }catch(e){ flash('Connection error','error'); }
+}
+
+function confirmDelete(uid,username){
+  if(isStaffer()){ flash('Staffers cannot delete accounts','error'); return; }
+  if(!confirm(`Delete account @${username}? This cannot be undone.`)) return;
+  fetch('/api/admin/users/'+uid,{method:'DELETE',credentials:'include'})
+    .then(r=>r.json()).then(d=>{
+      if(d.success){ flash('Deleted'); loadUsers(); }
+      else flash(d.message||'Error','error');
+    }).catch(()=>flash('Connection error','error'));
+}
+
+// ── Badge management page ─────────────────────────────────────────────────────
+async function loadBadgeUsers(){
+  const tbody=document.getElementById('badgeUsersBody');
+  try{
+    const res=await fetch('/api/admin/users?limit=200',{credentials:'include'});
+    const data=await res.json();
+    if(!data.success){ tbody.innerHTML='<tr class="empty-row"><td colspan="3">Error.</td></tr>'; return; }
+    renderBadgeTable(data.users);
+  }catch(e){ tbody.innerHTML='<tr class="empty-row"><td colspan="3">Connection error.</td></tr>'; }
+}
+
+function renderBadgeTable(users){
+  const tbody=document.getElementById('badgeUsersBody');
+  if(!users.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="3">No users.</td></tr>'; return; }
+  tbody.innerHTML=users.map(u=>`
+    <tr>
+      <td>${userCell(u)}</td>
+      <td>${badgeChips(u.badges)}</td>
+      <td><button class="tbl-btn edit" onclick='openBadgeModal(${JSON.stringify(u)})'>Manage Badges</button></td>
+    </tr>`).join('');
+}
+
+function filterBadgeUsers(){
+  const q=document.getElementById('badgeUserSearch').value.toLowerCase();
+  if(!q){ loadBadgeUsers(); return; }
+  const filtered=allUsers.filter(u=>u.username.toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q));
+  renderBadgeTable(filtered);
+}
+
+function openBadgeModal(u){
+  document.getElementById('badgeModalUid').value=u.uid;
+  document.getElementById('badgeModalName').textContent='@'+u.username;
+  const owned=u.badges||[];
+  document.getElementById('badgeModalGrid').innerHTML=ALL_BADGES.map(b=>{
+    const on=owned.includes(b.id);
+    const restricted=isStaffer()&&STAFFER_RESTRICTED_BADGES.includes(b.id);
+    const f=encodeURIComponent(b.id)+'.png';
+    return `<div class="badge-toggle${on?' on':''}${restricted?' disabled-badge':''}" data-bid="${escHtml(b.id)}" onclick="${restricted?'':'this.classList.toggle(\"on\");this.querySelector(\"span\").style.color=this.classList.contains(\"on\")?\"var(--orange)\":\"\"'}">
+      <img src="/assets/${f}" alt="${escHtml(b.label)}" onerror="this.style.opacity='0.3'">
+      <span>${escHtml(b.label)}</span>
+    </div>`;
+  }).join('');
+  openModal('badgeModal');
+}
+
+async function saveBadgeModal(){
+  const uid=document.getElementById('badgeModalUid').value;
+  let badges=[];
+  document.querySelectorAll('#badgeModalGrid .badge-toggle.on').forEach(el=>badges.push(el.dataset.bid));
+  if(isStaffer()) badges=badges.filter(b=>!STAFFER_RESTRICTED_BADGES.includes(b));
+  try{
+    const res=await fetch('/api/admin/users/'+uid,{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({badges})});
+    const data=await res.json();
+    if(data.success){ flash('Badges saved!'); closeModal('badgeModal'); loadBadgeUsers(); loadUsers(); }
+    else flash(data.message||'Error','error');
+  }catch(e){ flash('Connection error','error'); }
+}
+
+// ── Support Tickets ───────────────────────────────────────────────────────────
+async function loadTickets(){
+  const container=document.getElementById('ticketList');
+  container.innerHTML='<div class="loading-state"><span class="spinner"></span></div>';
+  try{
+    const res=await fetch('/api/admin/tickets',{credentials:'include'});
+    const data=await res.json();
+    if(!data.success){ container.innerHTML='<p style="color:var(--text4);text-align:center;padding:32px">Error loading tickets.</p>'; return; }
+    allTickets=data.tickets||[];
+    renderTickets(allTickets);
+  }catch(e){ container.innerHTML='<p style="color:var(--text4);text-align:center;padding:32px">Connection error.</p>'; }
+}
+
+function renderTickets(tickets){
+  const container=document.getElementById('ticketList');
+  if(!tickets.length){ container.innerHTML='<p style="color:var(--text4);text-align:center;padding:32px">No tickets found.</p>'; return; }
+  container.innerHTML=tickets.map(t=>`
+    <div class="ticket-card ${t.status==='open'?'open-ticket':'closed-ticket'}" onclick='openTicketModal(${JSON.stringify(t)})'>
+      <div class="ticket-hdr">
+        <span class="ticket-subject">${escHtml(t.subject||'No subject')}</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="pill ${t.status==='open'?'pill-orange':'pill-green'}">${escHtml(t.status||'open')}</span>
+          <span class="ticket-meta">${fmtDateTime(t.createdAt)}</span>
+        </div>
+      </div>
+      <div class="ticket-meta" style="margin-bottom:4px">from <strong>@${escHtml(t.username||'unknown')}</strong></div>
+      <div class="ticket-preview">${escHtml((t.messages&&t.messages[0]&&t.messages[0].text)||'—')}</div>
+    </div>`).join('');
+}
+
+function filterTickets(){
+  const q      = document.getElementById('ticketSearch').value.toLowerCase();
+  const status = document.getElementById('ticketFilter').value;
+  let filtered = allTickets;
+  if(status!=='all') filtered=filtered.filter(t=>t.status===status);
+  if(q) filtered=filtered.filter(t=>(t.subject||'').toLowerCase().includes(q)||(t.username||'').toLowerCase().includes(q));
+  renderTickets(filtered);
+}
+
+function openTicketModal(t){
+  document.getElementById('ticketModalId').value    = t.id;
+  document.getElementById('ticketModalTitle').textContent = t.subject||'Support Ticket';
+  document.getElementById('ticketModalMeta').textContent  = `@${t.username||'unknown'} · ${fmtDateTime(t.createdAt)}`;
+  const toggleBtn=document.getElementById('ticketToggleBtn');
+  toggleBtn.textContent = t.status==='open' ? 'Close Ticket' : 'Reopen Ticket';
+  toggleBtn.className   = t.status==='open' ? 'btn-sm btn-danger' : 'btn-sm btn-orange';
+
+  const thread=document.getElementById('ticketThread');
+  const msgs=t.messages||[];
+  thread.innerHTML=msgs.map(m=>`
+    <div>
+      <div class="msg-bubble ${m.role==='admin'?'from-admin':'from-user'}">${escHtml(m.text)}</div>
+      <div class="msg-meta" style="text-align:${m.role==='admin'?'right':'left'}">${escHtml(m.senderName||m.role)} · ${fmtDateTime(m.createdAt)}</div>
+    </div>`).join('');
+  thread.scrollTop=thread.scrollHeight;
+  document.getElementById('replyText').value='';
+  openModal('ticketModal');
+}
+
+async function toggleTicketStatus(){
+  const id=document.getElementById('ticketModalId').value;
+  const ticket=allTickets.find(t=>t.id===id);
+  if(!ticket) return;
+  const newStatus=ticket.status==='open'?'closed':'open';
+  try{
+    const res=await fetch('/api/admin/tickets/'+id+'/status',{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({status:newStatus})});
+    const data=await res.json();
+    if(data.success){ flash('Ticket '+(newStatus==='closed'?'closed':'reopened')); closeModal('ticketModal'); loadTickets(); }
+    else flash(data.message||'Error','error');
+  }catch(e){ flash('Connection error','error'); }
+}
+
+async function sendAdminReply(){
+  const id=document.getElementById('ticketModalId').value;
+  const text=document.getElementById('replyText').value.trim();
+  if(!text) return;
+  try{
+    const res=await fetch('/api/admin/tickets/'+id+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({text})});
+    const data=await res.json();
+    if(data.success){
+      flash('Reply sent!');
+      document.getElementById('replyText').value='';
+      // Reload the ticket thread
+      const tRes=await fetch('/api/admin/tickets/'+id,{credentials:'include'});
+      const tData=await tRes.json();
+      if(tData.success) openTicketModal(tData.ticket);
+      loadTickets();
+    } else flash(data.message||'Error','error');
+  }catch(e){ flash('Connection error','error'); }
+}
+
+// ── Notifications (owner only) ────────────────────────────────────────────────
+async function loadNotifications(){
+  if(!isOwner()) return;
+  const container=document.getElementById('notifList');
+  container.innerHTML='<div class="loading-state"><span class="spinner"></span></div>';
+  try{
+    const res=await fetch('/api/admin/notifications',{credentials:'include'});
+    const data=await res.json();
+    if(!data.success){ container.innerHTML='<p style="color:var(--text4);text-align:center;padding:32px">Error loading notifications.</p>'; return; }
+    const notifs=data.notifications||[];
+    if(!notifs.length){ container.innerHTML='<p style="color:var(--text4);text-align:center;padding:32px">No notifications sent yet.</p>'; return; }
+    container.innerHTML=notifs.map(n=>`
+      <div class="notif-item">
+        <div class="notif-body">
+          <div class="notif-title">${escHtml(n.title)}</div>
+          <div class="notif-msg">${escHtml(n.message)}</div>
+          <div class="notif-date">${fmtDateTime(n.createdAt)}</div>
+        </div>
+        <button class="btn-sm btn-danger" onclick="deleteNotification('${escHtml(n.id)}')">Delete</button>
+      </div>`).join('');
+  }catch(e){ container.innerHTML='<p style="color:var(--text4);text-align:center;padding:32px">Connection error.</p>'; }
+}
+
+async function createNotification(){
+  if(!isOwner()){ flash('Only owners can create notifications','error'); return; }
+  const title=document.getElementById('notifTitle').value.trim();
+  const message=document.getElementById('notifMessage').value.trim();
+  if(!title||!message){ flash('Title and message are required','error'); return; }
+  try{
+    const res=await fetch('/api/admin/notifications',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({title,message})});
+    const data=await res.json();
+    if(data.success){
+      flash('Notification sent to all users!');
+      closeModal('newNotifModal');
+      document.getElementById('notifTitle').value='';
+      document.getElementById('notifMessage').value='';
+      loadNotifications();
+    } else flash(data.message||'Error','error');
+  }catch(e){ flash('Connection error','error'); }
+}
+
+async function deleteNotification(id){
+  if(!confirm('Delete this notification?')) return;
+  try{
+    const res=await fetch('/api/admin/notifications/'+id,{method:'DELETE',credentials:'include'});
+    const data=await res.json();
+    if(data.success){ flash('Deleted'); loadNotifications(); }
+    else flash(data.message||'Error','error');
+  }catch(e){ flash('Connection error','error'); }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+checkExistingSession();
+</script>
+</body>
+</html>
