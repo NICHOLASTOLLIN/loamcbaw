@@ -3,5 +3,4 @@
 /dashboard    /dashboard.html    200
 /admin        /admin.html        200
 /support      /support.html      200
-/:username    /profile.html      200
 /*            /index.html        200
