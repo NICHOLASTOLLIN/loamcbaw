@@ -15,8 +15,9 @@ function issueToken(res, payload) {
   });
   res.cookie('token', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: true,         // obbligatorio con SameSite=None
+    sameSite: 'None',     // permette cross-domain (wlc.lol ↔ api.wlc.lol)
+    domain: '.wlc.lol',  // copre tutti i sottodomini
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
   return token;
@@ -209,8 +210,9 @@ router.post(
 router.post('/logout', (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: true,
+    sameSite: 'None',
+    domain: '.wlc.lol',
   });
   return res.json({ success: true, message: 'Logged out.' });
 });
