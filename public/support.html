@@ -296,7 +296,7 @@ function showGate(){
 
 async function init(){
   try{
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/auth/me', {credentials:'include'});
+    var res  = await fetch('https://api.wlc.lol/api/auth/me', {credentials:'include'});
     var data = await res.json();
     if(!data.success){ showGate(); return; }
     showListView();
@@ -308,7 +308,7 @@ async function loadTickets(){
   var container = document.getElementById('ticketListContent');
   container.innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted)">Loading…</div>';
   try{
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/support/tickets', {credentials:'include'});
+    var res  = await fetch('https://api.wlc.lol/api/support/tickets', {credentials:'include'});
     var data = await res.json();
     if(!data.success){ container.innerHTML='<div class="empty-state"><p>Could not load tickets.</p></div>'; return; }
     var tickets = data.tickets || [];
@@ -340,7 +340,7 @@ async function submitTicket(){
   if(!subject){ flash('Please enter a subject.','error'); return; }
   if(!message){ flash('Please write a message.','error'); return; }
   try{
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/support/tickets', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({subject, message})});
+    var res  = await fetch('https://api.wlc.lol/api/support/tickets', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({subject, message})});
     var data = await res.json();
     if(data.success){
       flash('Ticket submitted! We\'ll get back to you soon.');
@@ -389,7 +389,7 @@ async function sendReply(){
   var text = document.getElementById('replyInput').value.trim();
   if(!text){ flash('Write a message first.','error'); return; }
   try{
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/support/tickets/'+_currentTicketId+'/message', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({text})});
+    var res  = await fetch('https://api.wlc.lol/api/support/tickets/'+_currentTicketId+'/message', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({text})});
     var data = await res.json();
     if(data.success){
       document.getElementById('replyInput').value = '';

@@ -1,8 +1,12 @@
+'use strict';
+
 const express  = require('express');
 const router   = express.Router();
 const bcrypt   = require('bcryptjs');
+const jwt      = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const { collections, admin } = require('../config/firebase');
+const { FieldValue } = require('firebase-admin/firestore');
 const { requireAuth } = require('../middleware/auth.middleware');
 const support = require('../controllers/support.controller');
 const notifs  = require('../controllers/notifications.controller');
@@ -13,7 +17,7 @@ async function requireAdmin(req, res, next) {
     const userDoc = await collections.users.doc(req.user.uid).get();
     if (!userDoc.exists) return res.status(403).json({ success: false, message: 'Forbidden.' });
     const role = userDoc.data().role;
-    if (role !== 'admin' && role !== 'owner') {
+    if (role !== 'admin' && role !== 'owner' && role !== 'staffer') {
       return res.status(403).json({ success: false, message: 'Admin access required.' });
     }
     req.adminRole = role;
@@ -31,6 +35,18 @@ function requireOwner(req, res, next) {
   next();
 }
 
+// ─── Helper: check granular permission for non-owners ─────────────────────────
+async function checkPermission(adminUid, adminRole, permId) {
+  if (adminRole === 'owner') return true;
+  try {
+    const doc = await collections.adminPermissions.doc(adminUid).get();
+    if (!doc.exists) return false;
+    return !!doc.data()[permId];
+  } catch {
+    return false;
+  }
+}
+
 // ─── GET /api/admin/stats ─────────────────────────────────────────────────────
 router.get('/stats', requireAuth, requireAdmin, async (req, res) => {
   try {
@@ -43,8 +59,8 @@ router.get('/stats', requireAuth, requireAdmin, async (req, res) => {
     let totalViews = 0;
     viewsSnap.forEach(doc => { totalViews += doc.data().viewCount || 0; });
 
-    const proSnap  = await collections.users.where('isPro',  '==', true).count().get();
-    const verSnap  = await collections.users.where('isVerified', '==', true).count().get();
+    const proSnap = await collections.users.where('isPro', '==', true).count().get();
+    const verSnap = await collections.users.where('isVerified', '==', true).count().get();
 
     return res.json({
       success: true,
@@ -70,23 +86,27 @@ router.get('/users', requireAuth, requireAdmin, async (req, res) => {
 
     const snap = await collections.users.orderBy('createdAt', 'desc').limit(limit).get();
 
+    const canSeeEmail = await checkPermission(req.user.uid, req.adminRole, 'see_email');
+    const canSeeIp    = await checkPermission(req.user.uid, req.adminRole, 'see_ip');
+
     let users = snap.docs.map(doc => {
       const d = doc.data();
       return {
-        uid:          d.uid,
-        username:     d.username,
-        email:        d.email,
-        displayName:  d.displayName,
-        avatarUrl:    d.avatarUrl || '',
-        isVerified:   d.isVerified,
-        isPro:        d.isPro,
-        role:         d.role || 'user',
-        viewCount:    d.viewCount || 0,
-        linkCount:    d.linkCount || 0,
-        badges:       d.badges || [],
-        activeBadges: d.activeBadges || [],
-        createdAt:    d.createdAt,
-        lastLoginAt:  d.lastLoginAt || null,
+        uid:            d.uid,
+        username:       d.username,
+        email:          canSeeEmail ? d.email : undefined,
+        displayName:    d.displayName,
+        avatarUrl:      d.avatarUrl || '',
+        isVerified:     d.isVerified,
+        isPro:          d.isPro,
+        role:           d.role || 'user',
+        viewCount:      d.viewCount || 0,
+        linkCount:      d.linkCount || 0,
+        badges:         d.badges || [],
+        activeBadges:   d.activeBadges || [],
+        createdAt:      d.createdAt,
+        lastLoginAt:    d.lastLoginAt || null,
+        registrationIp: canSeeIp ? (d.registrationIp || null) : undefined,
       };
     });
 
@@ -94,7 +114,7 @@ router.get('/users', requireAuth, requireAdmin, async (req, res) => {
       const s = search.toLowerCase();
       users = users.filter(u =>
         u.username.toLowerCase().includes(s) ||
-        u.email.toLowerCase().includes(s) ||
+        (u.email || '').toLowerCase().includes(s) ||
         (u.displayName || '').toLowerCase().includes(s)
       );
     }
@@ -143,7 +163,11 @@ router.put('/users/:uid', requireAuth, requireAdmin, async (req, res) => {
           return res.status(409).json({ success: false, message: 'Username already taken.' });
         }
         const batch = collections.users.firestore.batch();
-        batch.set(collections.usernames.doc(newU), { uid: req.params.uid, username: newU, claimedAt: admin.firestore.FieldValue.serverTimestamp() });
+        batch.set(collections.usernames.doc(newU), {
+          uid: req.params.uid,
+          username: newU,
+          claimedAt: FieldValue.serverTimestamp(),
+        });
         if (target.usernameLower && target.usernameLower !== newU) {
           batch.delete(collections.usernames.doc(target.usernameLower));
         }
@@ -153,12 +177,35 @@ router.put('/users/:uid', requireAuth, requireAdmin, async (req, res) => {
       }
     }
 
+    // ── Email change (requires change_email permission) ───────────────────────
+    if (req.body.email !== undefined) {
+      const canChangeEmail = await checkPermission(req.user.uid, req.adminRole, 'change_email');
+      if (!canChangeEmail) {
+        return res.status(403).json({ success: false, message: 'You do not have permission to change emails.' });
+      }
+      const newEmail = req.body.email.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+        return res.status(400).json({ success: false, message: 'Invalid email address.' });
+      }
+      // Check email not already taken by someone else
+      const emailSnap = await collections.users.where('email', '==', newEmail).limit(1).get();
+      if (!emailSnap.empty && emailSnap.docs[0].id !== req.params.uid) {
+        return res.status(409).json({ success: false, message: 'Email already in use by another account.' });
+      }
+      updates.email = newEmail;
+    }
+
     if (req.body.viewCount !== undefined) {
       const v = parseInt(req.body.viewCount);
       if (!isNaN(v) && v >= 0) updates.viewCount = v;
     }
 
+    // ── Password change (requires change_password permission) ─────────────────
     if (req.body.newPassword !== undefined && req.body.newPassword.length >= 8) {
+      const canChangePw = await checkPermission(req.user.uid, req.adminRole, 'change_password');
+      if (!canChangePw) {
+        return res.status(403).json({ success: false, message: 'You do not have permission to change passwords.' });
+      }
       updates.passwordHash = await bcrypt.hash(req.body.newPassword, 12);
     }
 
@@ -166,7 +213,7 @@ router.put('/users/:uid', requireAuth, requireAdmin, async (req, res) => {
     if (req.body.isVerified !== undefined) updates.isVerified = Boolean(req.body.isVerified);
 
     if (req.body.role !== undefined && req.adminRole === 'owner') {
-      const validRoles = ['user', 'admin', 'owner'];
+      const validRoles = ['user', 'admin', 'owner', 'staffer'];
       if (validRoles.includes(req.body.role)) updates.role = req.body.role;
     }
 
@@ -180,7 +227,7 @@ router.put('/users/:uid', requireAuth, requireAdmin, async (req, res) => {
       return res.status(400).json({ success: false, message: 'No valid fields to update.' });
     }
 
-    updates.updatedAt = admin.firestore.FieldValue.serverTimestamp();
+    updates.updatedAt = FieldValue.serverTimestamp();
     await collections.users.doc(req.params.uid).update(updates);
 
     return res.json({ success: true, message: 'User updated successfully.', updates });
@@ -193,8 +240,9 @@ router.put('/users/:uid', requireAuth, requireAdmin, async (req, res) => {
 // ─── DELETE /api/admin/users/:uid ─────────────────────────────────────────────
 router.delete('/users/:uid', requireAuth, requireAdmin, async (req, res) => {
   try {
-    if (req.adminRole !== 'owner') {
-      return res.status(403).json({ success: false, message: 'Only owner can delete accounts.' });
+    const canDelete = await checkPermission(req.user.uid, req.adminRole, 'delete_account');
+    if (!canDelete) {
+      return res.status(403).json({ success: false, message: 'You do not have permission to delete accounts.' });
     }
     if (req.params.uid === req.user.uid) {
       return res.status(400).json({ success: false, message: 'Cannot delete your own account.' });
@@ -229,5 +277,165 @@ router.post  ('/tickets/:id/reply',  requireAuth, requireAdmin, support.adminRep
 router.get   ('/notifications',      requireAuth, requireAdmin, requireOwner, notifs.adminList);
 router.post  ('/notifications',      requireAuth, requireAdmin, requireOwner, notifs.adminCreate);
 router.delete('/notifications/:id',  requireAuth, requireAdmin, requireOwner, notifs.adminDelete);
+
+// ─── PERMISSIONS (owner only) ─────────────────────────────────────────────────
+// Collection: adminPermissions / {uid} → { permId: bool, ... }
+
+/**
+ * GET /api/admin/permissions
+ * Returns all permissions for all staff users as an object: { uid: { permId: bool } }
+ */
+router.get('/permissions', requireAuth, requireAdmin, requireOwner, async (req, res) => {
+  try {
+    const snap = await collections.adminPermissions.get();
+    const permissions = {};
+    snap.forEach(doc => {
+      permissions[doc.id] = doc.data();
+    });
+    return res.json({ success: true, permissions });
+  } catch (err) {
+    console.error('admin permissions GET error:', err.message);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+/**
+ * PUT /api/admin/permissions/:uid
+ * Body: { permId: string, value: boolean }
+ * Sets a single permission toggle for a given user.
+ */
+router.put('/permissions/:uid', requireAuth, requireAdmin, requireOwner, async (req, res) => {
+  try {
+    const { permId, value } = req.body;
+
+    const VALID_PERMS = [
+      'give_badges', 'delete_account', 'change_password',
+      'see_email', 'see_ip', 'change_email',
+      'direct_login', 'send_notifications',
+    ];
+
+    if (!permId || !VALID_PERMS.includes(permId)) {
+      return res.status(400).json({ success: false, message: `Invalid permission id: ${permId}` });
+    }
+    if (typeof value !== 'boolean') {
+      return res.status(400).json({ success: false, message: 'value must be a boolean.' });
+    }
+
+    // Make sure target user is a real staff account
+    const targetDoc = await collections.users.doc(req.params.uid).get();
+    if (!targetDoc.exists) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+    const targetRole = targetDoc.data().role;
+    if (!['admin', 'staffer'].includes(targetRole)) {
+      return res.status(400).json({ success: false, message: 'Permissions can only be set for admin/staffer accounts.' });
+    }
+
+    const permRef = collections.adminPermissions.doc(req.params.uid);
+    await permRef.set({ [permId]: value }, { merge: true });
+
+    return res.json({ success: true, permId, value });
+  } catch (err) {
+    console.error('admin permissions PUT error:', err.message);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ─── REQUESTS — login & register audit log (admin + owner) ───────────────────
+// Collection: authLogs / auto-id → { type, email, success, reason, ip, createdAt }
+// NOTE: you must write to this collection from auth.routes.js (see below)
+
+/**
+ * GET /api/admin/requests
+ * Returns up to 500 recent login/register attempts, newest first.
+ * Query params: ?type=login|register  ?status=success|fail  ?limit=N
+ */
+router.get('/requests', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const limitN = Math.min(parseInt(req.query.limit) || 200, 500);
+
+    let query = collections.authLogs.orderBy('createdAt', 'desc').limit(limitN);
+
+    // Optional server-side filter by type
+    if (req.query.type && ['login', 'register'].includes(req.query.type)) {
+      query = collections.authLogs
+        .where('type', '==', req.query.type)
+        .orderBy('createdAt', 'desc')
+        .limit(limitN);
+    }
+
+    const snap = await query.get();
+
+    const canSeeIp = await checkPermission(req.user.uid, req.adminRole, 'see_ip');
+
+    const requests = snap.docs.map(doc => {
+      const d = doc.data();
+      return {
+        id:        doc.id,
+        type:      d.type      || 'login',
+        email:     d.email     || d.username || null,
+        username:  d.username  || null,
+        success:   d.success   ?? false,
+        status:    d.success ? 'success' : 'fail',
+        reason:    d.reason    || null,
+        ip:        canSeeIp ? (d.ip || null) : null,
+        createdAt: d.createdAt || null,
+      };
+    });
+
+    return res.json({ success: true, requests });
+  } catch (err) {
+    console.error('admin requests GET error:', err.message);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ─── DIRECT LOGIN (owner only) ────────────────────────────────────────────────
+/**
+ * POST /api/admin/login-as/:uid
+ * Issues a short-lived JWT for the target user and sets it as a cookie,
+ * so the owner gets redirected to /dashboard as that user.
+ */
+router.post('/login-as/:uid', requireAuth, requireAdmin, requireOwner, async (req, res) => {
+  try {
+    // Extra safety: owner cannot login-as themselves
+    if (req.params.uid === req.user.uid) {
+      return res.status(400).json({ success: false, message: 'Cannot login as yourself.' });
+    }
+
+    const targetDoc = await collections.users.doc(req.params.uid).get();
+    if (!targetDoc.exists) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+    const target = targetDoc.data();
+
+    // Issue a token for the target user (1 hour, short-lived)
+    const token = jwt.sign(
+      { uid: target.uid, username: target.username, email: target.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure:   true,
+      sameSite: 'None',
+      domain:   '.wlc.lol',
+      maxAge:   60 * 60 * 1000, // 1 hour
+    });
+
+    // Log the impersonation
+    console.warn(`[ADMIN] Owner ${req.user.uid} logged in as ${target.uid} (${target.username})`);
+
+    return res.json({
+      success: true,
+      message: `Logged in as @${target.username}`,
+      user: { uid: target.uid, username: target.username },
+    });
+  } catch (err) {
+    console.error('admin login-as error:', err.message);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
 
 module.exports = router;

@@ -602,16 +602,16 @@ async function doLogin(){
   document.getElementById('loginBtnText').innerHTML='<span class="spinner"></span>';
   err.style.display='none';
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({email,password:pass})});
+    const res=await fetch('https://api.wlc.lol/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({email,password:pass})});
     const data=await res.json();
     if(!data.success){ showErr(data.message||'Invalid credentials'); return; }
-    const meRes=await fetch('https://wlc-backend-4x27.onrender.com/api/auth/me',{credentials:'include'});
+    const meRes=await fetch('https://api.wlc.lol/api/auth/me',{credentials:'include'});
     const me=await meRes.json();
     if(!me.success){ showErr('Could not verify account.'); return; }
     const role=me.user.role;
     if(role!=='admin'&&role!=='owner'&&role!=='staffer'){
       showErr('Access denied. Admin or Staffer role required.');
-      await fetch('https://wlc-backend-4x27.onrender.com/api/auth/logout',{method:'POST',credentials:'include'});
+      await fetch('https://api.wlc.lol/api/auth/logout',{method:'POST',credentials:'include'});
       return;
     }
     currentAdmin=me.user;
@@ -623,7 +623,7 @@ function showErr(msg){ const el=document.getElementById('loginErr'); el.textCont
 
 async function checkExistingSession(){
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/auth/me',{credentials:'include'});
+    const res=await fetch('https://api.wlc.lol/api/auth/me',{credentials:'include'});
     const data=await res.json();
     const role=data.user&&data.user.role;
     if(data.success&&(role==='admin'||role==='owner'||role==='staffer')){
@@ -656,7 +656,7 @@ function enterApp(){
 }
 
 async function doLogout(){
-  await fetch('https://wlc-backend-4x27.onrender.com/api/auth/logout',{method:'POST',credentials:'include'});
+  await fetch('https://api.wlc.lol/api/auth/logout',{method:'POST',credentials:'include'});
   window.location.href='/login';
 }
 
@@ -665,7 +665,7 @@ document.getElementById('loginPass').addEventListener('keydown',e=>{ if(e.key===
 // ── Overview ──────────────────────────────────────────────────────────────────
 async function loadOverview(){
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/admin/stats',{credentials:'include'});
+    const res=await fetch('https://api.wlc.lol/api/admin/stats',{credentials:'include'});
     const data=await res.json();
     if(!data.success){ flash('Failed to load stats','error'); return; }
     const s=data.stats;
@@ -678,7 +678,7 @@ async function loadOverview(){
 
   const tbody=document.getElementById('recentUsersBody');
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/admin/users?limit=10',{credentials:'include'});
+    const res=await fetch('https://api.wlc.lol/api/admin/users?limit=10',{credentials:'include'});
     const data=await res.json();
     if(!data.success||!data.users.length){
       tbody.innerHTML='<tr class="empty-row"><td colspan="5">No users found.</td></tr>'; return;
@@ -698,7 +698,7 @@ async function loadOverview(){
 async function loadUsers(){
   const tbody=document.getElementById('usersBody');
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/admin/users?limit=200',{credentials:'include'});
+    const res=await fetch('https://api.wlc.lol/api/admin/users?limit=200',{credentials:'include'});
     const data=await res.json();
     if(!data.success){ tbody.innerHTML='<tr class="empty-row"><td colspan="8">Error loading users.</td></tr>'; return; }
     allUsers=data.users;
@@ -825,7 +825,7 @@ async function saveEditUser(){
   }
 
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/admin/users/'+uid,{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(body)});
+    const res=await fetch('https://api.wlc.lol/api/admin/users/'+uid,{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(body)});
     const data=await res.json();
     if(data.success){ flash('User updated!'); closeModal('editModal'); loadUsers(); loadBadgeUsers(); }
     else flash(data.message||'Error updating user','error');
@@ -838,7 +838,7 @@ async function deleteUser(){
   const username=document.getElementById('editUsername').value;
   if(!confirm(`Permanently delete @${username}? This cannot be undone.`)) return;
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/admin/users/'+uid,{method:'DELETE',credentials:'include'});
+    const res=await fetch('https://api.wlc.lol/api/admin/users/'+uid,{method:'DELETE',credentials:'include'});
     const data=await res.json();
     if(data.success){ flash('Account deleted'); closeModal('editModal'); loadUsers(); }
     else flash(data.message||'Error deleting user','error');
@@ -848,7 +848,7 @@ async function deleteUser(){
 function confirmDelete(uid,username){
   if(isStaffer()){ flash('Staffers cannot delete accounts','error'); return; }
   if(!confirm(`Delete account @${username}? This cannot be undone.`)) return;
-  fetch('https://wlc-backend-4x27.onrender.com/api/admin/users/'+uid,{method:'DELETE',credentials:'include'})
+  fetch('https://api.wlc.lol/api/admin/users/'+uid,{method:'DELETE',credentials:'include'})
     .then(r=>r.json()).then(d=>{
       if(d.success){ flash('Deleted'); loadUsers(); }
       else flash(d.message||'Error','error');
@@ -859,7 +859,7 @@ function confirmDelete(uid,username){
 async function loadBadgeUsers(){
   const tbody=document.getElementById('badgeUsersBody');
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/admin/users?limit=200',{credentials:'include'});
+    const res=await fetch('https://api.wlc.lol/api/admin/users?limit=200',{credentials:'include'});
     const data=await res.json();
     if(!data.success){ tbody.innerHTML='<tr class="empty-row"><td colspan="3">Error.</td></tr>'; return; }
     renderBadgeTable(data.users);
@@ -906,7 +906,7 @@ async function saveBadgeModal(){
   document.querySelectorAll('#badgeModalGrid .badge-toggle.on').forEach(el=>badges.push(el.dataset.bid));
   if(isStaffer()) badges=badges.filter(b=>!STAFFER_RESTRICTED_BADGES.includes(b));
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/admin/users/'+uid,{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({badges})});
+    const res=await fetch('https://api.wlc.lol/api/admin/users/'+uid,{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({badges})});
     const data=await res.json();
     if(data.success){ flash('Badges saved!'); closeModal('badgeModal'); loadBadgeUsers(); loadUsers(); }
     else flash(data.message||'Error','error');
@@ -918,7 +918,7 @@ async function loadTickets(){
   const container=document.getElementById('ticketList');
   container.innerHTML='<div class="loading-state"><span class="spinner"></span></div>';
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/admin/tickets',{credentials:'include'});
+    const res=await fetch('https://api.wlc.lol/api/admin/tickets',{credentials:'include'});
     const data=await res.json();
     if(!data.success){ container.innerHTML='<p style="color:var(--text4);text-align:center;padding:32px">Error loading tickets.</p>'; return; }
     allTickets=data.tickets||[];
@@ -978,7 +978,7 @@ async function toggleTicketStatus(){
   if(!ticket) return;
   const newStatus=ticket.status==='open'?'closed':'open';
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/admin/tickets/'+id+'/status',{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({status:newStatus})});
+    const res=await fetch('https://api.wlc.lol/api/admin/tickets/'+id+'/status',{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({status:newStatus})});
     const data=await res.json();
     if(data.success){ flash('Ticket '+(newStatus==='closed'?'closed':'reopened')); closeModal('ticketModal'); loadTickets(); }
     else flash(data.message||'Error','error');
@@ -990,13 +990,13 @@ async function sendAdminReply(){
   const text=document.getElementById('replyText').value.trim();
   if(!text) return;
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/admin/tickets/'+id+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({text})});
+    const res=await fetch('https://api.wlc.lol/api/admin/tickets/'+id+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({text})});
     const data=await res.json();
     if(data.success){
       flash('Reply sent!');
       document.getElementById('replyText').value='';
       // Reload the ticket thread
-      const tRes=await fetch('https://wlc-backend-4x27.onrender.com/api/admin/tickets/'+id,{credentials:'include'});
+      const tRes=await fetch('https://api.wlc.lol/api/admin/tickets/'+id,{credentials:'include'});
       const tData=await tRes.json();
       if(tData.success) openTicketModal(tData.ticket);
       loadTickets();
@@ -1010,7 +1010,7 @@ async function loadNotifications(){
   const container=document.getElementById('notifList');
   container.innerHTML='<div class="loading-state"><span class="spinner"></span></div>';
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/admin/notifications',{credentials:'include'});
+    const res=await fetch('https://api.wlc.lol/api/admin/notifications',{credentials:'include'});
     const data=await res.json();
     if(!data.success){ container.innerHTML='<p style="color:var(--text4);text-align:center;padding:32px">Error loading notifications.</p>'; return; }
     const notifs=data.notifications||[];
@@ -1033,7 +1033,7 @@ async function createNotification(){
   const message=document.getElementById('notifMessage').value.trim();
   if(!title||!message){ flash('Title and message are required','error'); return; }
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/admin/notifications',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({title,message})});
+    const res=await fetch('https://api.wlc.lol/api/admin/notifications',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({title,message})});
     const data=await res.json();
     if(data.success){
       flash('Notification sent to all users!');
@@ -1048,7 +1048,7 @@ async function createNotification(){
 async function deleteNotification(id){
   if(!confirm('Delete this notification?')) return;
   try{
-    const res=await fetch('https://wlc-backend-4x27.onrender.com/api/admin/notifications/'+id,{method:'DELETE',credentials:'include'});
+    const res=await fetch('https://api.wlc.lol/api/admin/notifications/'+id,{method:'DELETE',credentials:'include'});
     const data=await res.json();
     if(data.success){ flash('Deleted'); loadNotifications(); }
     else flash(data.message||'Error','error');

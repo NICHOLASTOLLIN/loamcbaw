@@ -752,17 +752,31 @@ function showPage(id){
   document.getElementById('breadcrumb').innerHTML = 'Dashboard <span class="sep">›</span> ' + (names[id] || id);
 }
 
+// ── Auth helpers ─────────────────────────────────────────────────────────────
+function getToken(){ return localStorage.getItem('wlc-token'); }
+
+function apiFetch(url, options){
+  options = options || {};
+  options.headers = options.headers || {};
+  var token = getToken();
+  if(token) options.headers['Authorization'] = 'Bearer ' + token;
+  options.credentials = 'include';
+  return fetch(url, options);
+}
+
 async function logout(){
-  await fetch('https://wlc-backend-4x27.onrender.com/api/auth/logout', {method:'POST', credentials:'include'});
+  localStorage.removeItem('wlc-token');
+  await apiFetch('https://api.wlc.lol/api/auth/logout', {method:'POST'});
   window.location.href = '/login';
 }
 
 async function fetchMe(){
+  if(!getToken()){ window.location.href = '/login'; return; }
   try {
-    var res = await fetch('https://wlc-backend-4x27.onrender.com/api/auth/me', {credentials:'include'});
-    if(!res.ok){ window.location.href = '/login'; return; }
+    var res = await apiFetch('https://api.wlc.lol/api/auth/me');
+    if(!res.ok){ localStorage.removeItem('wlc-token'); window.location.href = '/login'; return; }
     var data = await res.json();
-    if(!data.success){ window.location.href = '/login'; return; }
+    if(!data.success){ localStorage.removeItem('wlc-token'); window.location.href = '/login'; return; }
     currentUser = data.user;
     populateUser(currentUser);
   } catch(e){ window.location.href = '/login'; }
@@ -836,7 +850,7 @@ async function saveProfile(){
     updates.lastUsernameChange = new Date().toISOString();
   }
   try {
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/profile', {method:'PUT', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify(updates)});
+    var res  = await apiFetch('https://api.wlc.lol/api/profile', {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(updates)});
     var data = await res.json();
     if(data.success){ flash('Profile saved!', 'success'); await fetchMe(); }
     else flash(data.message || 'Save failed', 'error');
@@ -909,7 +923,7 @@ async function saveLayouts(){
   };
   localStorage.setItem('wlc-layouts', JSON.stringify(s));
   try {
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/profile', {method:'PUT', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify({layoutSettings: s})});
+    var res  = await apiFetch('https://api.wlc.lol/api/profile', {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({layoutSettings: s})});
     var data = await res.json();
     if(data.success){ if(currentUser) currentUser.layoutSettings = s; flash('Layout saved!', 'success'); }
     else flash(data.message || 'Save failed', 'error');
@@ -968,7 +982,7 @@ function updateCteEffectUI(effect){
 
 async function loadLinks(){
   try {
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/links', {credentials:'include'});
+    var res  = await apiFetch('https://api.wlc.lol/api/links');
     var data = await res.json();
     if(data.success){ links = data.links; renderLinks(); }
   } catch(e){}
@@ -1022,7 +1036,7 @@ async function updateLink(){
   var iconUrl = document.getElementById('editLinkIconUrl').value.trim();
   if(!title || !url){ flash('Fill in all fields', 'error'); return; }
   try {
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/links/' + id, {method:'PUT', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify({title:title, url:url, iconUrl: iconUrl})});
+    var res  = await apiFetch('https://api.wlc.lol/api/links/' + id, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title:title, url:url, iconUrl: iconUrl})});
     var data = await res.json();
     if(data.success){ flash('Link updated!', 'success'); closeModal('editLinkModal'); await loadLinks(); }
     else flash(data.message || 'Error', 'error');
@@ -1032,7 +1046,7 @@ async function updateLink(){
 async function deleteLink(id){
   if(!confirm('Delete this link?')) return;
   try {
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/links/' + id, {method:'DELETE', credentials:'include'});
+    var res  = await apiFetch('https://api.wlc.lol/api/links/' + id, {method:'DELETE'});
     var data = await res.json();
     if(data.success){ flash('Link deleted', 'success'); await loadLinks(); }
     else flash(data.message || 'Error', 'error');
@@ -1055,7 +1069,7 @@ async function savePlatformLink(){
   var title = document.getElementById('platformModalTitle2').value.trim();
   if(!url || !title){ flash('Fill in all fields', 'error'); return; }
   try {
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/links', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify({title:title, url:url, icon:currentPlatformIcon})});
+    var res  = await apiFetch('https://api.wlc.lol/api/links', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title:title, url:url, icon:currentPlatformIcon})});
     var data = await res.json();
     if(data.success){ flash('Link added!', 'success'); closeModal('platformModal'); await loadLinks(); }
     else flash(data.message || 'Error', 'error');
@@ -1068,7 +1082,7 @@ async function saveCustomLink(){
   var iconUrl = document.getElementById('customIconUrl').value.trim();
   if(!title || !url){ flash('Fill in all fields', 'error'); return; }
   try {
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/links', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify({title:title, url:url, icon:'link', iconUrl: iconUrl || ''})});
+    var res  = await apiFetch('https://api.wlc.lol/api/links', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title:title, url:url, icon:'link', iconUrl: iconUrl || ''})});
     var data = await res.json();
     if(data.success){ flash('Link added!', 'success'); closeModal('customLinkModal'); await loadLinks(); }
     else flash(data.message || 'Error', 'error');
@@ -1118,7 +1132,7 @@ async function saveBadges(){
   var selected=[];
   document.querySelectorAll('#badgeGrid .badge-active').forEach(function(c){selected.push(c.dataset.badge);});
   try{
-    var res=await fetch('https://wlc-backend-4x27.onrender.com/api/profile/badges',{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({activeBadges:selected})});
+    var res=await apiFetch('https://api.wlc.lol/api/profile/badges',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({activeBadges:selected})});
     var data=await res.json();
     if(data.success){flash('Badges saved!','success');currentUser.activeBadges=data.activeBadges;}
     else flash(data.message||'Error saving badges','error');
@@ -1224,7 +1238,7 @@ async function loadNotificationsPage(){
   var container = document.getElementById('notifPageContent');
   container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text4)">Loading…</div>';
   try{
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/notifications', {credentials:'include'});
+    var res  = await apiFetch('https://api.wlc.lol/api/notifications');
     var data = await res.json();
     if(!data.success){ container.innerHTML='<div style="padding:40px;text-align:center;color:var(--text4)">Could not load notifications.</div>'; return; }
     var notifs = data.notifications || [];
@@ -1260,7 +1274,7 @@ function updateNotifBadge(count){
 
 async function checkUnseenNotifications(){
   try{
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/notifications', {credentials:'include'});
+    var res  = await apiFetch('https://api.wlc.lol/api/notifications');
     var data = await res.json();
     if(!data.success) return;
     var notifs = data.notifications || [];
@@ -1283,7 +1297,7 @@ async function loadMyTickets(){
   container.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text4)">Loading…</div>';
   showTicketList();
   try{
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/support/tickets', {credentials:'include'});
+    var res  = await apiFetch('https://api.wlc.lol/api/support/tickets');
     var data = await res.json();
     if(!data.success){ container.innerHTML='<div style="padding:32px;text-align:center;color:var(--text4)">Could not load tickets.</div>'; return; }
     var tickets = data.tickets || [];
@@ -1328,7 +1342,7 @@ async function submitTicket(){
   var message = document.getElementById('ticketMessage').value.trim();
   if(!subject || !message){ flash('Subject and message are required.','error'); return; }
   try{
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/support/tickets', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({subject, message})});
+    var res  = await apiFetch('https://api.wlc.lol/api/support/tickets', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({subject, message})});
     var data = await res.json();
     if(data.success){
       flash('Ticket submitted!','success');
@@ -1373,7 +1387,7 @@ async function sendTicketMessage(){
   var text = document.getElementById('threadReplyText').value.trim();
   if(!text){ flash('Write a message first.','error'); return; }
   try{
-    var res  = await fetch('https://wlc-backend-4x27.onrender.com/api/support/tickets/'+_currentTicketId+'/message', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({text})});
+    var res  = await apiFetch('https://api.wlc.lol/api/support/tickets/'+_currentTicketId+'/message', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text})});
     var data = await res.json();
     if(data.success){
       document.getElementById('threadReplyText').value = '';

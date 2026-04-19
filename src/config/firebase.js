@@ -12,18 +12,20 @@ if (!admin.apps.length) {
   });
 }
 
-const db = admin.firestore();
+const db   = admin.firestore();
 const auth = admin.auth();
 
 // ─── Firestore collection references ─────────────────────────────────────────
 const collections = {
-  users:         db.collection('users'),         // user profiles
-  usernames:     db.collection('usernames'),     // username → uid index (fast lookup)
-  pendingRegs:   db.collection('pendingRegs'),   // temp OTP storage during registration
-  links:         db.collection('links'),         // biolink links per user
-  sessions:      db.collection('sessions'),      // refresh token store (optional)
-  tickets:       db.collection('tickets'),       // support tickets
-  notifications: db.collection('notifications'), // global broadcast notifications
+  users:            db.collection('users'),            // user profiles
+  usernames:        db.collection('usernames'),        // username → uid index (fast lookup)
+  pendingRegs:      db.collection('pendingRegs'),      // temp OTP storage during registration
+  links:            db.collection('links'),            // biolink links per user
+  sessions:         db.collection('sessions'),         // refresh token store (optional)
+  tickets:          db.collection('tickets'),          // support tickets
+  notifications:    db.collection('notifications'),    // global broadcast notifications
+  adminPermissions: db.collection('adminPermissions'), // uid → { permId: bool } granular perms
+  authLogs:         db.collection('authLogs'),         // login/register audit log
 };
 
 module.exports = { admin, db, auth, collections };

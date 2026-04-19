@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const { collections, admin } = require('../config/firebase');
+const { FieldValue } = require('firebase-admin/firestore');
 const { requireAuth } = require('../middleware/auth.middleware');
 const { loginLimiter, usernameLimiter } = require('../middleware/rateLimiter.middleware');
 
@@ -23,6 +24,28 @@ function issueToken(res, payload) {
   return token;
 }
 
+function getClientIp(req) {
+  return (req.headers['x-forwarded-for']?.split(',')[0]?.trim()) || req.ip || null;
+}
+
+/** Write an entry to the authLogs collection (fire-and-forget, never throws) */
+async function writeAuthLog({ type, email, username, success, reason, ip }) {
+  try {
+    await collections.authLogs.add({
+      type,                    // 'login' | 'register'
+      email:    email    || null,
+      username: username || null,
+      success:  !!success,
+      reason:   reason   || null,
+      ip:       ip       || null,
+      createdAt: FieldValue.serverTimestamp(),
+    });
+  } catch (err) {
+    // Never break the main request if logging fails
+    console.error('authLog write error:', err.message);
+  }
+}
+
 const RESERVED_USERNAMES = new Set([
   'admin', 'root', 'api', 'www', 'mail', 'support', 'help',
   'login', 'register', 'dashboard', 'settings', 'billing',
@@ -38,23 +61,22 @@ function isValidUsername(username) {
 }
 
 // ─── VPN / Proxy check via IPHub ──────────────────────────────────────────────
-// block: 0 = IP pulito, 1 = VPN/proxy, 2 = datacenter/hosting
 async function isVpnOrProxy(ip) {
   try {
     const apiKey = process.env.IPHUB_API_KEY;
-    if (!apiKey) return false; // chiave non configurata → non bloccare
+    if (!apiKey) return false;
 
     const res = await fetch(`https://v2.api.iphub.info/ip/${ip}`, {
       headers: { 'X-Key': apiKey },
     });
 
-    if (!res.ok) return false; // IPHub irraggiungibile → fail-open
+    if (!res.ok) return false;
 
     const data = await res.json();
     return data.block === 1 || data.block === 2;
   } catch (err) {
     console.error('IPHub check error:', err.message);
-    return false; // fail-open: se IPHub è giù non bloccare la registrazione
+    return false;
   }
 }
 
@@ -99,25 +121,27 @@ router.post(
     body('password').isLength({ min: 8 }),
   ],
   async (req, res) => {
+    const clientIp = getClientIp(req);
+
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
+        await writeAuthLog({ type: 'register', email: req.body.email, ip: clientIp, success: false, reason: 'Invalid input' });
         return res.status(400).json({ success: false, message: 'Invalid input. Check all fields.' });
       }
 
       const { username, email, password } = req.body;
 
       if (!isValidUsername(username)) {
+        await writeAuthLog({ type: 'register', email, username, ip: clientIp, success: false, reason: 'Invalid username' });
         return res.status(400).json({ success: false, message: 'Invalid username.' });
       }
-
-      // Legge l'IP reale del client passando attraverso i proxy di Render
-      const clientIp = (req.headers['x-forwarded-for']?.split(',')[0]?.trim()) || req.ip;
 
       // ── VPN / Proxy check ─────────────────────────────────────────────────────
       if (clientIp) {
         const vpn = await isVpnOrProxy(clientIp);
         if (vpn) {
+          await writeAuthLog({ type: 'register', email, username, ip: clientIp, success: false, reason: 'VPN/proxy detected' });
           return res.status(403).json({
             success: false,
             message: 'Registrations via VPN or proxy are not allowed. Please disable your VPN and try again.',
@@ -132,6 +156,7 @@ router.post(
           .limit(1)
           .get();
         if (!ipSnap.empty) {
+          await writeAuthLog({ type: 'register', email, username, ip: clientIp, success: false, reason: 'Duplicate IP — account already exists from this network' });
           return res.status(403).json({
             success: false,
             message: 'An account already exists from this network. Only one account per IP is allowed.',
@@ -146,9 +171,11 @@ router.post(
       ]);
 
       if (usernameSnap.exists) {
+        await writeAuthLog({ type: 'register', email, username, ip: clientIp, success: false, reason: 'Username already taken' });
         return res.status(409).json({ success: false, message: 'Username is already taken.' });
       }
       if (!emailSnap.empty) {
+        await writeAuthLog({ type: 'register', email, username, ip: clientIp, success: false, reason: 'Email already in use' });
         return res.status(409).json({ success: false, message: 'An account with this email already exists.' });
       }
 
@@ -157,7 +184,7 @@ router.post(
 
       // ── Create user + claim username atomically ───────────────────────────────
       const uid = collections.users.doc().id;
-      const now = admin.firestore.FieldValue.serverTimestamp();
+      const now = FieldValue.serverTimestamp();
       const batch = collections.users.firestore.batch();
 
       batch.set(collections.users.doc(uid), {
@@ -188,6 +215,9 @@ router.post(
 
       await batch.commit();
 
+      // Log successful register
+      await writeAuthLog({ type: 'register', email, username, ip: clientIp, success: true });
+
       const token = issueToken(res, { uid, username, email });
 
       return res.status(201).json({
@@ -198,6 +228,7 @@ router.post(
       });
     } catch (err) {
       console.error('register error:', err.message);
+      await writeAuthLog({ type: 'register', email: req.body.email, ip: clientIp, success: false, reason: 'Server error' });
       return res.status(500).json({ success: false, message: 'Registration failed. Please try again.' });
     }
   }
@@ -212,9 +243,12 @@ router.post(
     body('password').notEmpty(),
   ],
   async (req, res) => {
+    const clientIp = getClientIp(req);
+
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
+        await writeAuthLog({ type: 'login', email: req.body.email, ip: clientIp, success: false, reason: 'Invalid input format' });
         return res.status(400).json({ success: false, message: 'Invalid email or password.' });
       }
 
@@ -222,18 +256,23 @@ router.post(
 
       const userQuery = await collections.users.where('email', '==', email).limit(1).get();
       if (userQuery.empty) {
+        await writeAuthLog({ type: 'login', email, ip: clientIp, success: false, reason: 'Account not found' });
         return res.status(401).json({ success: false, message: 'Invalid email or password.' });
       }
 
       const user = userQuery.docs[0].data();
       const isMatch = await bcrypt.compare(password, user.passwordHash);
       if (!isMatch) {
+        await writeAuthLog({ type: 'login', email, username: user.username, ip: clientIp, success: false, reason: 'Wrong password' });
         return res.status(401).json({ success: false, message: 'Invalid email or password.' });
       }
 
       await collections.users.doc(user.uid).update({
-        lastLoginAt: admin.firestore.FieldValue.serverTimestamp(),
+        lastLoginAt: FieldValue.serverTimestamp(),
       });
+
+      // Log successful login
+      await writeAuthLog({ type: 'login', email, username: user.username, ip: clientIp, success: true });
 
       const token = issueToken(res, { uid: user.uid, username: user.username, email: user.email });
 
@@ -251,6 +290,7 @@ router.post(
       });
     } catch (err) {
       console.error('login error:', err.message);
+      await writeAuthLog({ type: 'login', email: req.body.email, ip: clientIp, success: false, reason: 'Server error' });
       return res.status(500).json({ success: false, message: 'Login failed. Please try again.' });
     }
   }
