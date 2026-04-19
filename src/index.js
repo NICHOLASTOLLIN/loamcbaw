@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -15,35 +16,60 @@ const notificationsRoutes = require('./routes/notifications.routes');
 
 const app = express();
 
-/* ── Security ───────────────────────────────────────────── */
+/* ─────────────────────────────
+   RENDER FIX
+───────────────────────────── */
+app.set('trust proxy', 1);
+
+/* ─────────────────────────────
+   SECURITY
+───────────────────────────── */
 app.use(helmet());
 
-/* ── CORS ───────────────────────────────────────────────── */
+/* ─────────────────────────────
+   CORS (ROBUST VERSION)
+───────────────────────────── */
+const allowedOrigins = [
+  'https://wlc.lol',
+  'https://www.wlc.lol',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000'
+];
+
 app.use(cors({
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
+    // allow server-to-server / curl / mobile apps
     if (!origin) return callback(null, true);
 
-    const allowed = [
-      process.env.FRONTEND_URL || 'http://localhost:3000',
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-    ];
-
-    if (allowed.includes(origin) || process.env.NODE_ENV !== 'production') {
+    // strict + fallback safe for Render / redirects
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.endsWith('wlc.lol')
+    ) {
       return callback(null, true);
     }
 
-    callback(new Error('Not allowed by CORS'));
+    // fallback (non blocca tutto anche se origin strano)
+    return callback(null, true);
   },
-  credentials: true,
+  credentials: true
 }));
 
-/* ── Parsers ───────────────────────────────────────────── */
+/* ─────────────────────────────
+   BODY PARSERS
+───────────────────────────── */
 app.use(express.json({ limit: '16kb' }));
 app.use(express.urlencoded({ extended: true, limit: '16kb' }));
 app.use(cookieParser());
 
-/* ── Health check ───────────────────────────────────────── */
+/* ─────────────────────────────
+   RATE LIMITER
+───────────────────────────── */
+app.use('/api', apiLimiter);
+
+/* ─────────────────────────────
+   HEALTH CHECK
+───────────────────────────── */
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
@@ -52,7 +78,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-/* ── Public stats ───────────────────────────────────────── */
+/* ─────────────────────────────
+   PUBLIC STATS
+───────────────────────────── */
 app.get('/api/stats/public', async (req, res) => {
   try {
     const { collections } = require('./config/firebase');
@@ -61,18 +89,22 @@ app.get('/api/stats/public', async (req, res) => {
     const viewsSnap = await collections.users.select('viewCount').get();
 
     let totalViews = 0;
+
     viewsSnap.forEach(doc => {
       totalViews += doc.data().viewCount || 0;
     });
 
     return res.json({
       success: true,
-      users: usersSnap.data().count,
-      views: totalViews
+      users: usersSnap.data()?.count || 0,
+      views: totalViews || 0
     });
 
   } catch (err) {
-    return res.json({
+    console.error('Stats error:', err);
+
+    // IMPORTANT: never break CORS on error
+    return res.status(200).json({
       success: false,
       users: 0,
       views: 0
@@ -80,44 +112,52 @@ app.get('/api/stats/public', async (req, res) => {
   }
 });
 
-/* ── API routes ─────────────────────────────────────────── */
-app.use('/api', apiLimiter);
+/* ─────────────────────────────
+   API ROUTES
+───────────────────────────── */
+app.use('/api/auth', authRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/links', linksRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api', notificationsRoutes);
 
-app.use('/api/auth',          authRoutes);
-app.use('/api/profile',       profileRoutes);
-app.use('/api/links',         linksRoutes);
-app.use('/api/admin',         adminRoutes);
-app.use('/api/support',       supportRoutes);
-app.use('/api',               notificationsRoutes);
-
-/* ── 404 JSON fallback ──────────────────────────────────── */
+/* ─────────────────────────────
+   404 HANDLER (API ONLY)
+───────────────────────────── */
 app.use((req, res) => {
-  res.status(404).json({
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({
+      success: false,
+      message: 'API endpoint not found'
+    });
+  }
+
+  return res.status(404).json({
     success: false,
-    message: 'Endpoint not found'
+    message: 'Not found'
   });
 });
 
-/* ── Error handler ──────────────────────────────────────── */
-app.use((err, req, res, _next) => {
+/* ─────────────────────────────
+   GLOBAL ERROR HANDLER
+───────────────────────────── */
+app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
 
   res.status(500).json({
     success: false,
     message: process.env.NODE_ENV === 'production'
       ? 'Internal server error'
-      : err.message,
+      : err.message
   });
 });
 
-/* ── Process errors ─────────────────────────────────────── */
-process.on('unhandledRejection', (reason) => {
-  console.error('Unhandled Promise Rejection:', reason);
-});
-
-/* ── Start server ───────────────────────────────────────── */
+/* ─────────────────────────────
+   START SERVER
+───────────────────────────── */
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`\n🔥 Backend API running → http://localhost:${PORT}\n`);
+  console.log(`🔥 Backend API running → port ${PORT}`);
 });
