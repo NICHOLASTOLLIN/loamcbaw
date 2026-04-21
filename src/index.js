@@ -113,8 +113,36 @@ app.get('/api/stats/public', async (req, res) => {
 });
 
 /* ─────────────────────────────
-   API ROUTES
+   PUBLIC LEADERBOARD
 ───────────────────────────── */
+app.get('/api/stats/leaderboard', async (req, res) => {
+  try {
+    const { collections } = require('./config/firebase');
+
+    const snap = await collections.users
+      .orderBy('viewCount', 'desc')
+      .limit(10)
+      .select('username', 'displayName', 'avatarUrl', 'viewCount')
+      .get();
+
+    const profiles = snap.docs.map(doc => {
+      const d = doc.data();
+      return {
+        username:    d.username    || '',
+        displayName: d.displayName || d.username || '',
+        avatarUrl:   d.avatarUrl   || '',
+        viewCount:   d.viewCount   || 0,
+      };
+    });
+
+    return res.json({ success: true, profiles });
+  } catch (err) {
+    console.error('Leaderboard error:', err);
+    return res.status(200).json({ success: false, profiles: [] });
+  }
+});
+
+
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/links', linksRoutes);
