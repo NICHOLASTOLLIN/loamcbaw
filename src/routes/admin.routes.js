@@ -223,6 +223,26 @@ router.put('/users/:uid', requireAuth, requireAdmin, async (req, res) => {
       updates.activeBadges = currentActive.filter(b => updates.badges.includes(b));
     }
 
+    // ── Medals management (owner only) ───────────────────────────────────────
+    const CUSTOM_MEDALS = ['noticed','known','contributor','egirl','eboy','rich','first_10'];
+    if (req.body.medals !== undefined && req.adminRole === 'owner') {
+      if (!Array.isArray(req.body.medals)) {
+        return res.status(400).json({ success: false, message: 'medals must be an array.' });
+      }
+      const validMedals = req.body.medals.filter(m => {
+        const id = typeof m === 'string' ? m : m.id;
+        return CUSTOM_MEDALS.includes(id);
+      }).map(m => {
+        const id = typeof m === 'string' ? m : m.id;
+        const MEDAL_LABELS = {
+          noticed:'Noticed by owners.', known:'Known.', contributor:'Contributor.',
+          egirl:'Gorgeus egirl.', eboy:'Gorgeus eboy.', rich:'Rich asf.', first_10:'Among the first 10.'
+        };
+        return { id, label: MEDAL_LABELS[id] || id };
+      });
+      updates.medals = validMedals;
+    }
+
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ success: false, message: 'No valid fields to update.' });
     }

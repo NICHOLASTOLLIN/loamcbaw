@@ -4,6 +4,70 @@ const { body, validationResult } = require('express-validator');
 const { collections, admin } = require('../config/firebase');
 const { requireAuth, optionalAuth } = require('../middleware/auth.middleware');
 
+// ─── Medal computation helper ─────────────────────────────────────────────────
+// Merges custom medals (set by admin) with auto-earned medals based on activity.
+// first_10 is determined by checking if user is among earliest 10 created accounts.
+
+let _first10Cache = null;  // simple in-memory cache (resets on deploy — acceptable)
+let _first10CacheTime = 0;
+
+async function computeMedals(user, uid, cols) {
+  const medals = [];
+  const MEDAL_LABELS = {
+    noticed: 'Noticed by owners.', known: 'Known.', contributor: 'Contributor.',
+    egirl: 'Gorgeus egirl.', eboy: 'Gorgeus eboy.', rich: 'Rich asf.',
+    first_10: 'Among the first 10.',
+    views_100: '100 Views', views_500: '500 Views',
+    views_1000: '1,000 Views', views_10000: '10,000 Views',
+  };
+
+  // 1. Custom medals assigned by owner
+  const customMedals = Array.isArray(user.medals) ? user.medals : [];
+  customMedals.forEach(m => {
+    const id = m.id || m;
+    medals.push({ id, label: MEDAL_LABELS[id] || id });
+  });
+
+  const existingIds = medals.map(m => m.id);
+
+  // 2. View-based medals (auto)
+  const views = user.viewCount || 0;
+  [
+    { id: 'views_100',   threshold: 100   },
+    { id: 'views_500',   threshold: 500   },
+    { id: 'views_1000',  threshold: 1000  },
+    { id: 'views_10000', threshold: 10000 },
+  ].forEach(({ id, threshold }) => {
+    if (views >= threshold && !existingIds.includes(id)) {
+      medals.push({ id, label: MEDAL_LABELS[id] });
+      existingIds.push(id);
+    }
+  });
+
+  // 3. first_10 — cache for 10 minutes to avoid repeated Firestore queries
+  if (!existingIds.includes('first_10')) {
+    const now = Date.now();
+    if (!_first10Cache || now - _first10CacheTime > 10 * 60 * 1000) {
+      try {
+        const snap = await cols.users
+          .orderBy('createdAt', 'asc')
+          .limit(10)
+          .select('uid')
+          .get();
+        _first10Cache = snap.docs.map(d => d.id);
+        _first10CacheTime = now;
+      } catch (_) {
+        _first10Cache = [];
+      }
+    }
+    if (_first10Cache.includes(uid)) {
+      medals.push({ id: 'first_10', label: MEDAL_LABELS['first_10'] });
+    }
+  }
+
+  return medals;
+}
+
 // ─── GET /api/profile/:username ───────────────────────────────────────────────
 // Public profile page data (no auth required)
 router.get('/:username', optionalAuth, async (req, res) => {
@@ -54,6 +118,8 @@ router.get('/:username', optionalAuth, async (req, res) => {
         layoutSettings: user.layoutSettings || {},
         profileFont: user.profileFont || 'inter',
         activeBadges: user.activeBadges || [],
+        medals: await computeMedals(user, uid, collections),
+        showMedals: user.showMedals !== false,
       },
       links,
       isOwner: req.user?.uid === uid,
@@ -71,7 +137,7 @@ router.put('/', requireAuth, async (req, res) => {
     const allowedFields = [
       'displayName', 'bio', 'theme', 'avatarUrl', 'bgUrl',
       'nameEffect', 'twSpeed', 'gradColor1', 'gradColor2',
-      'layoutSettings', 'lastUsernameChange', 'profileFont',
+      'layoutSettings', 'lastUsernameChange', 'profileFont', 'showMedals',
     ];
     const updates = {};
 
@@ -173,35 +239,6 @@ router.get('/:username/views', async (req, res) => {
   } catch (err) {
     console.error('views fetch error:', err.message);
     return res.status(500).json({ success: false, views: 0 });
-  }
-});
-
-// ─── PUT /api/profile/badges ──────────────────────────────────────────────────
-// Update which badges the user wants to display (max 6 active at once)
-router.put('/badges', requireAuth, async (req, res) => {
-  try {
-    const { activeBadges } = req.body;
-    if (!Array.isArray(activeBadges)) {
-      return res.status(400).json({ success: false, message: 'activeBadges must be an array.' });
-    }
-
-    const VALID_BADGES = ['booster','bug hunter','creator','famous','friend','gifter','og','owner','premium','staff','verified'];
-    const filtered = activeBadges.filter(b => VALID_BADGES.includes(b)).slice(0, 6);
-
-    // Verify user actually owns these badges
-    const userDoc = await collections.users.doc(req.user.uid).get();
-    const ownedBadges = userDoc.data()?.badges || [];
-    const allowed = filtered.filter(b => ownedBadges.includes(b));
-
-    await collections.users.doc(req.user.uid).update({
-      activeBadges: allowed,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
-    return res.json({ success: true, activeBadges: allowed });
-  } catch (err) {
-    console.error('badges put error:', err.message);
-    return res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
 

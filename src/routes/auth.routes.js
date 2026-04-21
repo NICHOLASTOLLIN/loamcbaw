@@ -315,6 +315,38 @@ router.get('/me', requireAuth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
     const { passwordHash: _, ...safeUser } = userDoc.data();
+
+    // Compute medals (view-based + custom + first_10)
+    const views = safeUser.viewCount || 0;
+    const MEDAL_LABELS = {
+      noticed:'Noticed by owners.', known:'Known.', contributor:'Contributor.',
+      egirl:'Gorgeus egirl.', eboy:'Gorgeus eboy.', rich:'Rich asf.',
+      first_10:'Among the first 10.', views_100:'100 Views', views_500:'500 Views',
+      views_1000:'1,000 Views', views_10000:'10,000 Views',
+    };
+    const medals = Array.isArray(safeUser.medals) ? [...safeUser.medals] : [];
+    const existingIds = medals.map(m => m.id || m);
+    [{ id:'views_100',threshold:100 },{ id:'views_500',threshold:500 },
+     { id:'views_1000',threshold:1000 },{ id:'views_10000',threshold:10000 }]
+      .forEach(({ id, threshold }) => {
+        if (views >= threshold && !existingIds.includes(id)) {
+          medals.push({ id, label: MEDAL_LABELS[id] });
+          existingIds.push(id);
+        }
+      });
+
+    // first_10 check
+    if (!existingIds.includes('first_10')) {
+      try {
+        const snap = await collections.users.orderBy('createdAt','asc').limit(10).select('uid').get();
+        const topUids = snap.docs.map(d => d.id);
+        if (topUids.includes(req.user.uid)) {
+          medals.push({ id:'first_10', label:MEDAL_LABELS['first_10'] });
+        }
+      } catch(_) {}
+    }
+
+    safeUser.medals = medals;
     return res.json({ success: true, user: safeUser });
   } catch (err) {
     console.error('me error:', err.message);
